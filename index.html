@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="it">
 <head>
@@ -10,27 +11,59 @@
 <body>
   <div class="container">
     <img src="skf-192.png" alt="SKF Logo" class="logo" />
-    <h1>Calcolo Gioco Radiale v3.2.1</h1>
-    <div class="config">
-      <label>IR min: <input type="number" id="irMin" value="-10" /></label>
-      <label>IR max: <input type="number" id="irMax" value="10" /></label>
-      <label>OR min: <input type="number" id="orMin" value="0" /></label>
-      <label>OR max: <input type="number" id="orMax" value="30" /></label>
-      <label>Offset (da -5 a +10): <input type="number" id="offset" value="0" min="-5" max="10"/></label>
-      <label>Gioco radiale minimo: <input type="number" id="grMin" value="35" /></label>
-      <label>Gioco radiale massimo: <input type="number" id="grMax" value="40" /></label>
-      <button onclick="calcola()">Calcola Combinazioni</button>
+    <h1>Calcolo Gioco Radiale <span class="ver">v3.3</span></h1>
+
+    <div class="grid">
+      <div class="card">
+        <h2>Configurazione IR / OR</h2>
+        <label>IR min: <input type="number" id="irMin" value="-10"></label>
+        <label>IR max: <input type="number" id="irMax" value="10"></label>
+        <label>OR min: <input type="number" id="orMin" value="0"></label>
+        <label>OR max: <input type="number" id="orMax" value="30"></label>
+      </div>
+
+      <div class="card">
+        <h2>Gioco Radiale & Offset</h2>
+        <label>Offset (da -5 a +10): <input type="number" id="offset" value="0" min="-5" max="10" step="0.1"></label>
+        <label>GR minimo (µm): <input type="number" id="grMin" value="35" step="0.1"></label>
+        <label>GR massimo (µm): <input type="number" id="grMax" value="40" step="0.1"></label>
+        <label>Sfere fisse: <code>−4, −2, 0, +2, +4</code></label>
+      </div>
     </div>
-    <h2>Combinazioni Valide</h2>
-    <table id="tabellaRisultati">
-      <thead>
-        <tr>
-          <th>IR</th><th>OR</th><th>Sfera</th><th>Gioco Radiale</th><th>Valido?</th>
-        </tr>
-      </thead>
-      <tbody></tbody>
-    </table>
+
+    <div class="actions">
+      <button id="btnCalcola">Calcola Combinazioni</button>
+      <label class="inline"><input type="checkbox" id="onlyValid"> mostra solo valide</label>
+      <button id="btnCSV" class="secondary" title="Scarica le combinazioni valide">Esporta CSV</button>
+    </div>
+
+    <div class="grid">
+      <div class="card">
+        <h2>Cruscotto combinazioni trovate</h2>
+        <div id="dashboard" class="dashboard">
+          <div><strong>Valide:</strong> <span id="dashValid">0</span></div>
+          <div><strong>GR target:</strong> <span id="dashTarget">–</span> µm</div>
+          <div><strong>IR ideale</strong> min–max: <span id="dashIR">–</span></div>
+          <div><strong>OR ideale</strong> min–max: <span id="dashOR">–</span></div>
+          <div><strong>Sfere usate</strong> min–max: <span id="dashSfere">–</span></div>
+        </div>
+      </div>
+
+      <div class="card table-card">
+        <h2>Combinazioni</h2>
+        <table id="tabellaRisultati">
+          <thead>
+            <tr>
+              <th>IR</th><th>OR</th><th>Sfera</th><th>Offset</th><th>GR (µm)</th><th>Valido?</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+        <p class="legend">Le righe <span class="ideal">gialle</span> sono le più vicine al centro del range di GR.</p>
+      </div>
+    </div>
   </div>
+
   <script src="script.js"></script>
 </body>
 </html>
