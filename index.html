@@ -11,7 +11,7 @@
 <body>
   <div class="container">
     <img src="skf-192.png" alt="SKF Logo" class="logo" />
-    <h1>Calcolo Gioco Radiale <span class="ver">v3.4</span></h1>
+    <h1>Calcolo Gioco Radiale <span class="ver">v3.5</span></h1>
 
     <div class="grid">
       <div class="card">
@@ -63,6 +63,17 @@
           <tbody></tbody>
         </table>
         <p class="legend">Preferenza IR≈0 attiva: le righe <span class="ideal">gialle</span> sono le migliori (vicine al centro GR e con IR vicino a 0).</p>
+      </div>
+    </div>
+
+    <div class="grid">
+      <div class="card">
+        <h2>Grafico distribuzione GR (tutte le combinazioni)</h2>
+        <canvas id="chartAll" width="600" height="260"></canvas>
+      </div>
+      <div class="card">
+        <h2>Grafico distribuzione GR (solo valide)</h2>
+        <canvas id="chartValid" width="600" height="260"></canvas>
       </div>
     </div>
   </div>

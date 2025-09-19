@@ -26,3 +26,4 @@ th{ background:#e6f0ff }
 .ideal{ background:#fff6c8 }
 .legend{ color:#cfe2ff; margin:.4rem 0 0 }
 .dashboard{ display:grid; gap:6px; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); font-size:.95rem }
+canvas{ background:#fff; border-radius:10px; }

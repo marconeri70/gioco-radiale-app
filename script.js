@@ -36,6 +36,7 @@ function calcola(){
   });
 
   render(grMin, grMax, grTarget);
+  drawCharts();
 }
 
 function render(grMin, grMax, grTarget){
@@ -78,6 +79,72 @@ function render(grMin, grMax, grTarget){
   }
 }
 
+// ---------- CHARTS (Canvas senza librerie esterne) ----------
+function drawHistogram(canvas, values, binsize){
+  const ctx = canvas.getContext('2d');
+  ctx.clearRect(0,0,canvas.width, canvas.height);
+
+  if(values.length===0){
+    ctx.fillStyle = '#999'; ctx.fillText('Nessun dato', 10, 20); return;
+  }
+
+  const minVal = Math.min(...values);
+  const maxVal = Math.max(...values);
+  const start = Math.floor(minVal / binsize) * binsize;
+  const end = Math.ceil(maxVal / binsize) * binsize;
+  const bins = [];
+  for(let b = start; b <= end + 1e-9; b += binsize){ bins.push(Number(b.toFixed(4))); }
+
+  const counts = new Array(bins.length).fill(0);
+  for(const v of values){
+    const idx = Math.min(Math.floor((v - start) / binsize), bins.length - 1);
+    counts[idx]++;
+  }
+
+  const padding = {left:40, right:10, top:20, bottom:30};
+  const w = canvas.width - padding.left - padding.right;
+  const h = canvas.height - padding.top - padding.bottom;
+  const maxCount = Math.max(...counts) || 1;
+  const barW = w / bins.length;
+
+  // Axes
+  ctx.strokeStyle = '#333';
+  ctx.beginPath();
+  ctx.moveTo(padding.left, padding.top);
+  ctx.lineTo(padding.left, padding.top + h);
+  ctx.lineTo(padding.left + w, padding.top + h);
+  ctx.stroke();
+
+  // Bars
+  ctx.fillStyle = '#1f78d1';
+  counts.forEach((c,i)=>{
+    const bh = (c / maxCount) * (h - 2);
+    const x = padding.left + i * barW + 1;
+    const y = padding.top + h - bh;
+    ctx.fillRect(x, y, barW - 2, bh);
+  });
+
+  // X labels (few)
+  ctx.fillStyle = '#000';
+  ctx.font = '10px Arial';
+  const step = Math.max(1, Math.floor(bins.length / 8));
+  for(let i=0;i<bins.length;i+=step){
+    const x = padding.left + i * barW;
+    const label = bins[i].toFixed(1);
+    ctx.fillText(label, x, padding.top + h + 12);
+  }
+}
+
+function drawCharts(){
+  const all = risultati.map(r=>r.gr);
+  const valid = risultati.filter(r=>r.valido).map(r=>r.gr);
+  const c1 = document.getElementById('chartAll');
+  const c2 = document.getElementById('chartValid');
+  drawHistogram(c1, all, 0.5);   // bin da 0.5 µm
+  drawHistogram(c2, valid, 0.5);
+}
+
+// --------- Export CSV ---------
 function exportCSV(){
   const validOnly = risultati.filter(r=>r.valido);
   if(!validOnly.length){ alert('Nessuna combinazione valida da esportare.'); return; }
@@ -91,6 +158,6 @@ function exportCSV(){
 document.addEventListener('DOMContentLoaded',()=>{
   document.getElementById('btnCalcola').addEventListener('click', calcola);
   document.getElementById('btnCSV').addEventListener('click', exportCSV);
-  document.getElementById('onlyValid').addEventListener('change', ()=>render(parseFloat(document.getElementById('grMin').value), parseFloat(document.getElementById('grMax').value), (parseFloat(document.getElementById('grMin').value)+parseFloat(document.getElementById('grMax').value))/2));
+  document.getElementById('onlyValid').addEventListener('change', calcola);
   calcola();
 });
