@@ -1,30 +1,21 @@
 :root{ --skf-blue:#005BBB; --skf-dark:#003F7F; --skf-accent:#0072CE; }
 *{box-sizing:border-box}
 body{ margin:0; font-family:Arial,Helvetica,sans-serif; background:var(--skf-blue); color:#fff; }
-.container{ max-width:1100px; margin:20px auto; padding:20px }
-.logo{ width:80px; display:block; margin:0 auto 10px }
+.container{ max-width:1200px; margin:20px auto; padding:20px }
+.logo{ width:70px; display:block; margin:0 auto 12px }
 h1{text-align:center;margin:0 0 15px}.ver{font-size:.7em;font-weight:400}
-.grid{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(260px,1fr))}
+.grid{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(320px,1fr))}
 .card{background:var(--skf-dark);border-radius:12px;padding:16px;box-shadow:0 6px 14px rgba(0,0,0,.15)}
 .card h2{margin:0 0 10px}
 label{display:block;margin:8px 0;color:#e9f0ff}
 .inline{display:flex;align-items:center;gap:8px}
-.hint{font-size:.85rem;color:#cfe2ff;margin-top:6px}
-input{width:100%;padding:8px;border-radius:8px;border:1px solid #1a5fb4}
-code{background:#072e62;color:#cde3ff;padding:2px 6px;border-radius:6px}
-.actions{display:flex;align-items:center;gap:10px;margin:16px 0;flex-wrap:wrap}
-button{background:var(--skf-accent);border:none;color:#fff;padding:10px 16px;border-radius:8px;cursor:pointer}
-button.secondary{background:#1f78d1}button.ghost{background:transparent;border:1px dashed #9cc7ff;color:#e6f2ff}
-button:hover{filter:brightness(1.05)}
-.table-card{overflow:auto}
 .table-wrap{max-height:420px;overflow:auto;border-radius:10px}
 table{width:100%;border-collapse:collapse;background:#fff;color:#000;border-radius:10px;overflow:hidden}
 th,td{border:1px solid #c7d7ef;padding:8px;text-align:center}
 th{background:#e6f0ff;position:sticky;top:0;z-index:1}
 .ok{color:#0a7a0a;font-weight:bold}.not-ok{color:#c51414;font-weight:bold}
-.ideal{background:#fff6c8}.legend{color:#cfe2ff;margin:.4rem 0 0}
-.dashboard{display:grid;gap:6px;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));font-size:.95rem}
-/* schematic */
+.ideal{background:#fff6c8}
 .schematic-data{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px;margin-bottom:10px;font-size:.95rem}
 .schematic-data .gr{grid-column:1/-1;color:#fff;background:#072e62;padding:6px 8px;border-radius:8px}
-.schematic-canvas{width:100%;height:auto;background:#f9fbff;border-radius:10px;display:block}
+.schematic-canvas{width:100%;height:auto;background:#f9fbff;border:1px solid #c7d7ef;border-radius:12px}
+.row{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
