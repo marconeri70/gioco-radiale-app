@@ -1,50 +1,71 @@
 
 body {
   font-family: Arial, sans-serif;
-  background-color: #005BAC;
-  color: #ffffff;
+  background-color: #005BBB;
+  color: #000;
   margin: 0;
-  padding: 20px;
+  padding: 0;
 }
+
 .container {
-  max-width: 800px;
-  margin: auto;
-  background-color: #ffffff;
-  color: #000000;
+  background-color: #fff;
+  margin: 20px auto;
   padding: 20px;
   border-radius: 10px;
-}
-.logo {
-  width: 100px;
-  display: block;
-  margin: 0 auto 20px;
-}
-h1, h2 {
+  width: 90%;
+  max-width: 500px;
   text-align: center;
 }
+
+.logo {
+  width: 80px;
+  margin-bottom: 10px;
+}
+
+h1 {
+  color: #005BBB;
+  font-size: 24px;
+}
+
+.config {
+  text-align: left;
+  margin-bottom: 20px;
+}
+
 label {
   display: block;
   margin: 10px 0;
 }
+
 input {
-  margin-left: 10px;
+  width: 100%;
+  padding: 5px;
+  margin-top: 5px;
+  box-sizing: border-box;
 }
+
 button {
-  display: block;
-  margin: 20px auto;
-  padding: 10px 20px;
-  background-color: #005BAC;
-  color: #fff;
+  background-color: #005BBB;
+  color: white;
   border: none;
+  padding: 10px 20px;
   border-radius: 5px;
+  cursor: pointer;
+  margin-top: 10px;
 }
+
 table {
   width: 100%;
   border-collapse: collapse;
   margin-top: 20px;
 }
+
 th, td {
-  border: 1px solid #000;
+  border: 1px solid #ddd;
   padding: 8px;
-  text-align: center;
+}
+
+th {
+  background-color: #005BBB;
+  color: white;
 }

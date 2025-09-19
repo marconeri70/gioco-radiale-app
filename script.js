@@ -1,3 +1,4 @@
+
 function calcola() {
   const irMin = parseFloat(document.getElementById("irMin").value);
   const irMax = parseFloat(document.getElementById("irMax").value);
