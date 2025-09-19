@@ -1,151 +1,36 @@
-
 <!DOCTYPE html>
 <html lang="it">
 <head>
-    <meta charset="UTF-8">
-    <title>SKF - Calcolo Gioco Radiale</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #005BAC;
-            color: white;
-            padding: 20px;
-        }
-        .logo {
-            width: 120px;
-            margin-bottom: 20px;
-        }
-        .section {
-            background-color: #003F7F;
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-        }
-        .section h3 {
-            margin-top: 0;
-        }
-        label {
-            display: block;
-            margin-top: 10px;
-        }
-        input {
-            width: 100%;
-            padding: 5px;
-            margin-top: 5px;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 10px;
-        }
-        th, td {
-            border: 1px solid #0070D1;
-            padding: 8px;
-            text-align: center;
-        }
-        .result {
-            font-weight: bold;
-            margin-top: 20px;
-            font-size: 1.2em;
-        }
-        .ok { color: #00FF00; }
-        .not-ok { color: #FF5555; }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>SKF - Calcolo Gioco Radiale</title>
+  <link rel="icon" href="favicon.ico" type="image/x-icon">
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-    <img src="skf-192.png" alt="SKF Logo" class="logo">
-    <h1>Calcolo Gioco Radiale SKF v3.2</h1>
-
-    <div class="section">
-        <h3>Parametri di Gioco Radiale</h3>
-        <label for="gr_min">Gioco Radiale Minimo (µm)</label>
-        <input type="number" id="gr_min" value="36">
-
-        <label for="gr_max">Gioco Radiale Massimo (µm)</label>
-        <input type="number" id="gr_max" value="40">
-
-        <label for="offset">Offset (da -5 a +10 µm)</label>
-        <input type="number" id="offset" value="0" min="-5" max="10">
+  <div class="container">
+    <img src="skf-192.png" alt="SKF Logo" class="logo" />
+    <h1>Calcolo Gioco Radiale v3.2.1</h1>
+    <div class="config">
+      <label>IR min: <input type="number" id="irMin" value="-10" /></label>
+      <label>IR max: <input type="number" id="irMax" value="10" /></label>
+      <label>OR min: <input type="number" id="orMin" value="0" /></label>
+      <label>OR max: <input type="number" id="orMax" value="30" /></label>
+      <label>Offset (da -5 a +10): <input type="number" id="offset" value="0" min="-5" max="10"/></label>
+      <label>Gioco radiale minimo: <input type="number" id="grMin" value="35" /></label>
+      <label>Gioco radiale massimo: <input type="number" id="grMax" value="40" /></label>
+      <button onclick="calcola()">Calcola Combinazioni</button>
     </div>
-
-    <div class="section">
-        <h3>Parametri IR / OR</h3>
-        <label for="ir_min">IR Min (µm)</label>
-        <input type="number" id="ir_min" value="-10">
-
-        <label for="ir_max">IR Max (µm)</label>
-        <input type="number" id="ir_max" value="0">
-
-        <label for="or_min">OR Min (µm)</label>
-        <input type="number" id="or_min" value="10">
-
-        <label for="or_max">OR Max (µm)</label>
-        <input type="number" id="or_max" value="20">
-    </div>
-
-    <div class="section">
-        <h3>Combinazioni Sfere e Gioco Radiale</h3>
-        <table id="resultsTable">
-            <thead>
-                <tr>
-                    <th>IR</th>
-                    <th>OR</th>
-                    <th>Sfera</th>
-                    <th>Offset</th>
-                    <th>GR (µm)</th>
-                    <th>Valido?</th>
-                </tr>
-            </thead>
-            <tbody id="resultsBody"></tbody>
-        </table>
-        <div class="result" id="summary"></div>
-    </div>
-
-    <script>
-        const sfere = [0, -2, -4, 2, 4];
-
-        function calcolaGR(ir, or, sfera, offset) {
-            return or - ir + sfera + offset;
-        }
-
-        function aggiornaRisultati() {
-            const irMin = parseFloat(document.getElementById("ir_min").value);
-            const irMax = parseFloat(document.getElementById("ir_max").value);
-            const orMin = parseFloat(document.getElementById("or_min").value);
-            const orMax = parseFloat(document.getElementById("or_max").value);
-            const grMin = parseFloat(document.getElementById("gr_min").value);
-            const grMax = parseFloat(document.getElementById("gr_max").value);
-            const offset = parseFloat(document.getElementById("offset").value);
-
-            const resultsBody = document.getElementById("resultsBody");
-            resultsBody.innerHTML = "";
-
-            let validCount = 0;
-            for (let ir = irMin; ir <= irMax; ir++) {
-                for (let or = orMin; or <= orMax; or++) {
-                    for (let sfera of sfere) {
-                        const gr = calcolaGR(ir, or, sfera, offset);
-                        const valido = gr >= grMin && gr <= grMax;
-                        const row = `<tr>
-                            <td>${ir}</td>
-                            <td>${or}</td>
-                            <td>${sfera}</td>
-                            <td>${offset}</td>
-                            <td>${gr.toFixed(2)}</td>
-                            <td class="${valido ? 'ok' : 'not-ok'}">${valido ? '✔️' : '❌'}</td>
-                        </tr>`;
-                        resultsBody.innerHTML += row;
-                        if (valido) validCount++;
-                    }
-                }
-            }
-
-            document.getElementById("summary").textContent = `${validCount} combinazioni valide trovate.`;
-        }
-
-        document.querySelectorAll("input").forEach(input => input.addEventListener("input", aggiornaRisultati));
-
-        aggiornaRisultati();
-    </script>
+    <h2>Combinazioni Valide</h2>
+    <table id="tabellaRisultati">
+      <thead>
+        <tr>
+          <th>IR</th><th>OR</th><th>Sfera</th><th>Gioco Radiale</th><th>Valido?</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+  <script src="script.js"></script>
 </body>
 </html>
