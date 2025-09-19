@@ -1,36 +1,105 @@
+
 <!DOCTYPE html>
 <html lang="it">
 <head>
   <meta charset="UTF-8">
-  <title>Calcolo Gioco Radiale</title>
+  <title>Calcolo Gioco Radiale - SKF</title>
+  <link rel="icon" type="image/png" href="skf-192.png">
   <style>
-    body { font-family: Arial; padding: 20px; background: #f4f4f4; }
-    label { display: block; margin-top: 10px; }
-    input { padding: 5px; }
-    button { margin-top: 10px; padding: 10px; }
-    .result { margin-top: 20px; background: white; padding: 15px; border-radius: 5px; }
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #005BBB;
+      color: #ffffff;
+      margin: 0;
+      padding: 20px;
+    }
+    .container {
+      background-color: #ffffff;
+      color: #000;
+      max-width: 800px;
+      margin: auto;
+      padding: 20px;
+      border-radius: 10px;
+    }
+    h2 {
+      text-align: center;
+    }
+    label {
+      display: block;
+      margin-top: 10px;
+      font-weight: bold;
+    }
+    input, select {
+      padding: 5px;
+      margin-top: 5px;
+      width: 100%;
+    }
+    button {
+      margin-top: 20px;
+      padding: 10px;
+      background-color: #005BBB;
+      color: white;
+      border: none;
+      cursor: pointer;
+      width: 100%;
+    }
+    .result {
+      margin-top: 20px;
+      background: #f4f4f4;
+      padding: 15px;
+      border-radius: 5px;
+      max-height: 400px;
+      overflow-y: auto;
+    }
+    img.logo {
+      display: block;
+      margin: auto;
+      width: 100px;
+    }
   </style>
 </head>
 <body>
-  <h2>🛠️ Calcolatore Gioco Radiale</h2>
-  <label for="gioco">Gioco Radiale Richiesto (µm):</label>
-  <input type="number" id="gioco" value="37.5" step="0.1">
+  <div class="container">
+    <img src="skf-192.png" alt="SKF Logo" class="logo">
+    <h2>Calcolatore Gioco Radiale</h2>
 
-  <button onclick="calcola()">Calcola Combinazioni</button>
+    <label for="gioco">🎯 Gioco Radiale Richiesto (µm):</label>
+    <input type="number" id="gioco" value="37.5" step="0.1">
 
-  <div class="result" id="risultato"></div>
+    <label for="irmin">🔧 IR Minimo (µm):</label>
+    <input type="number" id="irmin" value="-10">
+
+    <label for="irmax">🔧 IR Massimo (µm):</label>
+    <input type="number" id="irmax" value="0">
+
+    <label for="ormin">🔩 OR Minimo (µm):</label>
+    <input type="number" id="ormin" value="10">
+
+    <label for="ormax">🔩 OR Massimo (µm):</label>
+    <input type="number" id="ormax" value="20">
+
+    <label for="offset">🧮 Offset (µm):</label>
+    <input type="number" id="offset" value="9.0" step="0.1">
+
+    <button onclick="calcola()">Calcola Combinazioni</button>
+
+    <div class="result" id="risultato"></div>
+  </div>
 
   <script>
     function calcola() {
       const giocoRichiesto = parseFloat(document.getElementById("gioco").value);
+      const irMin = parseInt(document.getElementById("irmin").value);
+      const irMax = parseInt(document.getElementById("irmax").value);
+      const orMin = parseInt(document.getElementById("ormin").value);
+      const orMax = parseInt(document.getElementById("ormax").value);
+      const offset = parseFloat(document.getElementById("offset").value);
       const sfere = [-4, -2, 0, 2, 4];
       const risultati = [];
 
-      // Range realistico per IR e OR (es. -15 a +15 IR, +10 a +25 OR)
-      for (let ir = -15; ir <= 0; ir++) {
-        for (let or = 10; or <= 25; or++) {
+      for (let ir = irMin; ir <= irMax; ir++) {
+        for (let or = orMin; or <= orMax; or++) {
           for (let s of sfere) {
-            const offset = 9.0;
             const gioco = ir + or + s + offset;
             if (gioco >= giocoRichiesto - 0.5 && gioco <= giocoRichiesto + 0.5) {
               risultati.push(`IR: ${ir} µm | OR: ${or} µm | Sfera: ${s} µm → Gioco = ${gioco.toFixed(2)} µm`);
@@ -40,8 +109,8 @@
       }
 
       document.getElementById("risultato").innerHTML = risultati.length > 0
-        ? `<strong>Combinazioni trovate:</strong><br><ul>${risultati.map(r => `<li>${r}</li>`).join('')}</ul>`
-        : "❌ Nessuna combinazione trovata per il gioco richiesto.";
+        ? `<strong>✅ Combinazioni trovate:</strong><br><ul>${risultati.map(r => `<li>${r}</li>`).join('')}</ul>`
+        : "❌ Nessuna combinazione trovata per i parametri inseriti.";
     }
   </script>
 </body>
