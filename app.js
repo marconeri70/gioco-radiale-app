@@ -1,6 +1,25 @@
 
 const SFERE = [0, -2, -4, 2, 4];
 let risultati = [];
+let currentCombo = null;
+
+function setCurrentCombo(combo){
+  currentCombo = combo;
+  document.getElementById('schOR').textContent  = combo.or.toFixed(0);
+  document.getElementById('schIR').textContent  = combo.ir.toFixed(0);
+  document.getElementById('schOff').textContent = combo.offset.toFixed(1);
+  document.getElementById('schSf').textContent  = combo.sfera.toFixed(0);
+  document.getElementById('schGR').textContent  = combo.gr.toFixed(3);
+  drawSchematic(combo);
+}
+
+function drawSchematic(r){
+  const grPix = Math.max(10, Math.min(100, r.gr));
+  document.getElementById('grLine').setAttribute('x2', String(160 + (grPix/100)*80));
+  const shift = Math.max(-6, Math.min(6, r.sfera));
+  document.getElementById('ballTop').setAttribute('cx', String(160 + shift));
+  document.getElementById('ballBottom').setAttribute('cx', String(160 - shift));
+}
 
 function calcola(){
   const irMin = parseFloat(document.getElementById('irMin').value);
@@ -35,7 +54,6 @@ function calcola(){
   });
 
   render(grMin, grMax, grTarget);
-  requestAnimationFrame(drawCharts);
 }
 
 function render(grMin, grMax, grTarget){
@@ -55,72 +73,20 @@ function render(grMin, grMax, grTarget){
     tbody.appendChild(tr);
   }
 
+  // Click-to-apply shows in schematic immediately
   tbody.querySelectorAll('tr').forEach(tr => {
     tr.addEventListener('click', () => {
       const ir = Number(tr.dataset.ir);
       const orv = Number(tr.dataset.or);
-      document.getElementById('irMin').value = ir - 1;
-      document.getElementById('irMax').value = ir + 1;
-      document.getElementById('orMin').value = orv - 1;
-      document.getElementById('orMax').value = orv + 1;
-      calcola();
+      const s  = Number(tr.dataset.sfera);
+      const offset = parseFloat(document.getElementById('offset').value);
+      const gr = orv - ir + s + offset;
+      setCurrentCombo({ ir, or: orv, sfera: s, offset, gr, valido: true });
     });
   });
 
-  document.getElementById('dashValid').textContent = valide.length;
-  document.getElementById('dashTarget').textContent = grTarget.toFixed(2);
-  const grAll = risultati.map(r=>r.gr);
-  document.getElementById('dashRange').textContent = `${Math.min(...grAll).toFixed(2)} – ${Math.max(...grAll).toFixed(2)}`;
-
-  if(valide.length){
-    const irVals = valide.map(r=>r.ir), orVals = valide.map(r=>r.or), sfVals = valide.map(r=>r.sfera);
-    document.getElementById('dashIR').textContent = `${Math.min(...irVals)} – ${Math.max(...irVals)} µm`;
-    document.getElementById('dashOR').textContent = `${Math.min(...orVals)} – ${Math.max(...orVals)} µm`;
-    document.getElementById('dashSfere').textContent = `${Math.min(...sfVals)} – ${Math.max(...sfVals)} µm`;
-    const set = new Set(sfVals), all = new Set(SFERE);
-    const missing = [...all].filter(x=>!set.has(x));
-    const used = [...set].sort((a,b)=>a-b).join(', ');
-    document.getElementById('dashCover').textContent = missing.length===0 ? `OK (usate: ${used})` : `mancano: ${missing.sort((a,b)=>a-b).join(', ')}`;
-  } else {
-    document.getElementById('dashIR').textContent = '–';
-    document.getElementById('dashOR').textContent = '–';
-    document.getElementById('dashSfere').textContent = '–';
-    document.getElementById('dashCover').textContent = '–';
-  }
-}
-
-// Charts
-function setupCanvas(canvas){
-  const dpr = window.devicePixelRatio || 1;
-  const rect = canvas.getBoundingClientRect();
-  canvas.width = Math.round(rect.width * dpr);
-  canvas.height = Math.round(rect.height * dpr);
-  const ctx = canvas.getContext('2d');
-  ctx.setTransform(dpr,0,0,dpr,0,0);
-  return {ctx,w:rect.width,h:rect.height};
-}
-function drawHistogram(canvas, values, binsize){
-  const {ctx,w:cssW,h:cssH} = setupCanvas(canvas);
-  ctx.clearRect(0,0,cssW,cssH);
-  if(values.length===0){ ctx.fillStyle='#333'; ctx.fillText('Nessun dato',10,20); return; }
-  const min = Math.min(...values), max = Math.max(...values);
-  const start = Math.floor(min/binsize)*binsize, end = Math.ceil(max/binsize)*binsize;
-  const bins=[]; for(let b=start; b<=end+1e-9; b+=binsize) bins.push(Number(b.toFixed(4)));
-  const counts = new Array(bins.length).fill(0);
-  for(const v of values){ const i=Math.min(Math.floor((v-start)/binsize), bins.length-1); counts[i]++; }
-  const pad={l:40,r:10,t:20,b:30}; const w=cssW-pad.l-pad.r; const h=cssH-pad.t-pad.b;
-  const maxC=Math.max(...counts)||1; const barW=w/bins.length;
-  ctx.strokeStyle='#333'; ctx.beginPath(); ctx.moveTo(pad.l,pad.t); ctx.lineTo(pad.l,pad.t+h); ctx.lineTo(pad.l+w,pad.t+h); ctx.stroke();
-  ctx.fillStyle='#1f78d1'; counts.forEach((c,i)=>{ const bh=(c/maxC)*(h-2); const x=pad.l+i*barW+1; const y=pad.t+h-bh; ctx.fillRect(x,y,barW-2,bh); });
-  ctx.fillStyle='#000'; ctx.font='10px Arial'; const step=Math.max(1,Math.floor(bins.length/8));
-  for(let i=0;i<bins.length;i+=step){ const x=pad.l+i*barW; ctx.fillText(bins[i].toFixed(1), x, pad.t+h+12); }
-}
-function drawCharts(){
-  const all = risultati.map(r=>r.gr);
-  const valid = risultati.filter(r=>r.valido).map(r=>r.gr);
-  const c1 = document.getElementById('chartAll');
-  const c2 = document.getElementById('chartValid');
-  if(c1&&c2){ drawHistogram(c1, all, 0.5); drawHistogram(c2, valid, 0.5); }
+  if(closest) setCurrentCombo(closest);
+  else if (risultati.length) setCurrentCombo(risultati[0]);
 }
 
 function exportCSV(){
