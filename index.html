@@ -12,8 +12,8 @@
 </head>
 <body>
   <div class="container">
-    <img src="./skf-192.png" alt="SKF" class="logo" />
-    <h1>Calcolo Gioco Radiale <span class="ver">v4.3 (PWA)</span></h1>
+    <img src="./skf-192.png" alt="SKF Logo" class="logo" />
+    <h1>Calcolo Gioco Radiale <span class="ver">v4.1 (PWA)</span></h1>
 
     <div class="actions top">
       <button id="btnInstall" class="ghost" style="display:none">➕ Installa app</button>
@@ -43,7 +43,7 @@
     <div class="actions">
       <button id="btnCalcola">Calcola Combinazioni</button>
       <label class="inline"><input type="checkbox" id="onlyValid"> mostra solo valide</label>
-      <button id="btnCSV" class="secondary">Esporta CSV</button>
+      <button id="btnCSV" class="secondary" title="Scarica le combinazioni valide">Esporta CSV</button>
     </div>
 
     <div class="grid">
@@ -65,33 +65,25 @@
         <div class="table-wrap">
           <table id="tabellaRisultati">
             <thead>
-              <tr><th>IR</th><th>OR</th><th>Sfera</th><th>Offset</th><th>GR (µm)</th><th>Valido?</th></tr>
+              <tr>
+                <th>IR</th><th>OR</th><th>Sfera</th><th>Offset</th><th>GR (µm)</th><th>Valido?</th>
+              </tr>
             </thead>
             <tbody></tbody>
           </table>
         </div>
+        <p class="legend">Preferenza IR≈0 attiva: le righe <span class="ideal">gialle</span> sono le migliori (vicine al centro GR e con IR vicino a 0). Clicca una riga per impostare i limiti IR/OR.</p>
       </div>
     </div>
 
     <div class="grid">
       <div class="card">
-        <h2>Schema combinazione attuale</h2>
-        <div class="schematic-data">
-          <div><strong>Ø OR:</strong> <span id="schOR">—</span> µm</div>
-          <div><strong>Ø IR:</strong> <span id="schIR">—</span> µm</div>
-          <div><strong>Offset:</strong> <span id="schOff">—</span> µm</div>
-          <div><strong>Sfere:</strong> <span id="schSf">—</span> µm</div>
-          <div class="gr"><strong>= Gioco Radiale:</strong> <span id="schGR">—</span> µm</div>
-        </div>
-        <svg id="schematic" viewBox="0 0 320 200" class="schematic-svg">
-          <circle cx="160" cy="100" r="75" class="ring outer"/>
-          <circle cx="160" cy="100" r="45" class="ring inner"/>
-          <circle id="ballTop" cx="160" cy="45" r="10" class="ball"/>
-          <circle id="ballBottom" cx="160" cy="155" r="10" class="ball"/>
-          <line x1="160" y1="165" x2="260" y2="165" class="guide"/>
-          <text x="265" y="170" class="label">GR</text>
-          <line id="grLine" x1="160" y1="165" x2="200" y2="165" class="gr-line"/>
-        </svg>
+        <h2>Distribuzione GR (tutte)</h2>
+        <canvas id="chartAll" height="260" style="width:100%"></canvas>
+      </div>
+      <div class="card">
+        <h2>Distribuzione GR (valide)</h2>
+        <canvas id="chartValid" height="260" style="width:100%"></canvas>
       </div>
     </div>
   </div>
