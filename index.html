@@ -11,7 +11,7 @@
 <body>
   <div class="container">
     <img src="skf-192.png" alt="SKF Logo" class="logo" />
-    <h1>Calcolo Gioco Radiale <span class="ver">v3.5</span></h1>
+    <h1>Calcolo Gioco Radiale <span class="ver">v3.6</span></h1>
 
     <div class="grid">
       <div class="card">
@@ -21,6 +21,7 @@
         <label>OR min: <input type="number" id="orMin" value="0"></label>
         <label>OR max: <input type="number" id="orMax" value="30"></label>
         <label class="inline"><input type="checkbox" id="preferIR0" checked> preferisci IR vicino a 0</label>
+        <p class="hint">Suggerimento: clicca una riga della tabella per impostare automaticamente IR/OR min–max intorno a quei valori (±1 µm).</p>
       </div>
 
       <div class="card">
@@ -54,26 +55,28 @@
 
       <div class="card table-card">
         <h2>Combinazioni</h2>
-        <table id="tabellaRisultati">
-          <thead>
-            <tr>
-              <th>IR</th><th>OR</th><th>Sfera</th><th>Offset</th><th>GR (µm)</th><th>Valido?</th>
-            </tr>
-          </thead>
-          <tbody></tbody>
-        </table>
-        <p class="legend">Preferenza IR≈0 attiva: le righe <span class="ideal">gialle</span> sono le migliori (vicine al centro GR e con IR vicino a 0).</p>
+        <div class="table-wrap">
+          <table id="tabellaRisultati">
+            <thead>
+              <tr>
+                <th>IR</th><th>OR</th><th>Sfera</th><th>Offset</th><th>GR (µm)</th><th>Valido?</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+        <p class="legend">Preferenza IR≈0 attiva: le righe <span class="ideal">gialle</span> sono le migliori (vicine al centro GR e con IR vicino a 0). Clicca una riga per impostare i limiti IR/OR.</p>
       </div>
     </div>
 
     <div class="grid">
       <div class="card">
         <h2>Grafico distribuzione GR (tutte le combinazioni)</h2>
-        <canvas id="chartAll" width="600" height="260"></canvas>
+        <canvas id="chartAll" width="700" height="260"></canvas>
       </div>
       <div class="card">
         <h2>Grafico distribuzione GR (solo valide)</h2>
-        <canvas id="chartValid" width="600" height="260"></canvas>
+        <canvas id="chartValid" width="700" height="260"></canvas>
       </div>
     </div>
   </div>

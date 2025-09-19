@@ -11,6 +11,7 @@ h1{text-align:center;margin:0 0 15px}
 .card h2{ margin:0 0 10px }
 label{ display:block; margin:8px 0; color:#e9f0ff }
 .inline{ display:flex; align-items:center; gap:8px }
+.hint{ font-size:.85rem; color:#cfe2ff; margin-top:6px }
 input{ width:100%; padding:8px; border-radius:8px; border:1px solid #1a5fb4 }
 code{ background:#072e62; color:#cde3ff; padding:2px 6px; border-radius:6px }
 .actions{ display:flex; align-items:center; gap:10px; margin:16px 0 }
@@ -18,9 +19,10 @@ button{ background:var(--skf-accent); border:none; color:#fff; padding:10px 16px
 button.secondary{ background:#1f78d1 }
 button:hover{ filter:brightness(1.05) }
 .table-card{ overflow:auto }
+.table-wrap{ max-height:420px; overflow:auto; border-radius:10px; }
 table{ width:100%; border-collapse:collapse; background:#fff; color:#000; border-radius:10px; overflow:hidden }
 th,td{ border:1px solid #c7d7ef; padding:8px; text-align:center }
-th{ background:#e6f0ff }
+th{ background:#e6f0ff; position:sticky; top:0; z-index:1 }
 .ok{ color:#0a7a0a; font-weight:bold }
 .not-ok{ color:#c51414; font-weight:bold }
 .ideal{ background:#fff6c8 }

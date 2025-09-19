@@ -36,7 +36,8 @@ function calcola(){
   });
 
   render(grMin, grMax, grTarget);
-  drawCharts();
+  // Disegna grafici al prossimo frame per assicurarci che il layout sia pronto
+  requestAnimationFrame(drawCharts);
 }
 
 function render(grMin, grMax, grTarget){
@@ -50,10 +51,26 @@ function render(grMin, grMax, grTarget){
   for(const r of risultati){
     if(onlyValid && !r.valido) continue;
     const tr = document.createElement('tr');
+    tr.dataset.ir = r.ir;
+    tr.dataset.or = r.or;
+    tr.dataset.sfera = r.sfera;
     if(closest && r.ir===closest.ir && r.or===closest.or && r.sfera===closest.sfera) tr.classList.add('ideal');
     tr.innerHTML = `<td>${r.ir}</td><td>${r.or}</td><td>${r.sfera}</td><td>${r.offset.toFixed(1)}</td><td>${r.gr.toFixed(2)}</td><td class="${r.valido?'ok':'not-ok'}">${r.valido?'✔️':'❌'}</td>`;
     tbody.appendChild(tr);
   }
+
+  // Click-to-apply: setta i range IR/OR ±1 µm e ricalcola
+  tbody.querySelectorAll('tr').forEach(tr => {
+    tr.addEventListener('click', () => {
+      const ir = Number(tr.dataset.ir);
+      const orv = Number(tr.dataset.or);
+      document.getElementById('irMin').value = ir - 1;
+      document.getElementById('irMax').value = ir + 1;
+      document.getElementById('orMin').value = orv - 1;
+      document.getElementById('orMax').value = orv + 1;
+      calcola();
+    });
+  });
 
   document.getElementById('dashValid').textContent = valide.length;
   document.getElementById('dashTarget').textContent = grTarget.toFixed(2);
@@ -79,13 +96,27 @@ function render(grMin, grMax, grTarget){
   }
 }
 
-// ---------- CHARTS (Canvas senza librerie esterne) ----------
-function drawHistogram(canvas, values, binsize){
+// ---------- CHARTS (Canvas) ----------
+function setupCanvas(canvas){
+  const dpr = window.devicePixelRatio || 1;
+  const rect = canvas.getBoundingClientRect();
+  canvas.width = Math.round(rect.width * dpr);
+  canvas.height = Math.round(rect.height * dpr);
   const ctx = canvas.getContext('2d');
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  return ctx;
+}
+
+function drawHistogram(canvas, values, binsize){
+  const ctx = setupCanvas(canvas);
   ctx.clearRect(0,0,canvas.width, canvas.height);
 
+  // safe area in CSS pixels
+  const cssW = canvas.width / (window.devicePixelRatio||1);
+  const cssH = canvas.height / (window.devicePixelRatio||1);
+
   if(values.length===0){
-    ctx.fillStyle = '#999'; ctx.fillText('Nessun dato', 10, 20); return;
+    ctx.fillStyle = '#333'; ctx.font = '14px Arial'; ctx.fillText('Nessun dato', 10, 22); return;
   }
 
   const minVal = Math.min(...values);
@@ -102,8 +133,8 @@ function drawHistogram(canvas, values, binsize){
   }
 
   const padding = {left:40, right:10, top:20, bottom:30};
-  const w = canvas.width - padding.left - padding.right;
-  const h = canvas.height - padding.top - padding.bottom;
+  const w = cssW - padding.left - padding.right;
+  const h = cssH - padding.top - padding.bottom;
   const maxCount = Math.max(...counts) || 1;
   const barW = w / bins.length;
 
@@ -124,9 +155,8 @@ function drawHistogram(canvas, values, binsize){
     ctx.fillRect(x, y, barW - 2, bh);
   });
 
-  // X labels (few)
-  ctx.fillStyle = '#000';
-  ctx.font = '10px Arial';
+  // X labels
+  ctx.fillStyle = '#000'; ctx.font = '10px Arial';
   const step = Math.max(1, Math.floor(bins.length / 8));
   for(let i=0;i<bins.length;i+=step){
     const x = padding.left + i * barW;
@@ -140,9 +170,13 @@ function drawCharts(){
   const valid = risultati.filter(r=>r.valido).map(r=>r.gr);
   const c1 = document.getElementById('chartAll');
   const c2 = document.getElementById('chartValid');
-  drawHistogram(c1, all, 0.5);   // bin da 0.5 µm
-  drawHistogram(c2, valid, 0.5);
+  if(c1 && c2){
+    drawHistogram(c1, all, 0.5);
+    drawHistogram(c2, valid, 0.5);
+  }
 }
+
+window.addEventListener('resize', () => requestAnimationFrame(drawCharts));
 
 // --------- Export CSV ---------
 function exportCSV(){
