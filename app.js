@@ -1,8 +1,128 @@
 
-const SFERE=[0,-2,-4,2,4]; let risultati=[],currentCombo=null;
-function setCurrentCombo(c){currentCombo=c;document.getElementById('schOR').textContent=c.or.toFixed(0);document.getElementById('schIR').textContent=c.ir.toFixed(0);document.getElementById('schSf').textContent=c.sfera.toFixed(0);document.getElementById('schOff').textContent=c.offset.toFixed(1);document.getElementById('schGR').textContent=c.gr.toFixed(3);drawBearing(c);}
-function calcola(){const irMin=+irMinEl.value,irMax=+irMaxEl.value,orMin=+orMinEl.value,orMax=+orMaxEl.value,grMin=+grMinEl.value,grMax=+grMaxEl.value,offset=+offsetSlider.value,preferIR0=preferIR0El.checked,grTarget=(grMin+grMax)/2;risultati=[];for(let ir=irMin;ir<=irMax;ir++){for(let orv=orMin;orv<=orMax;orv++){for(const s of SFERE){const gr=orv-ir+s+offset;const valido=gr>=grMin&&gr<=grMax;risultati.push({ir,or:orv,sfera:s,offset,gr,valido});}}}risultati.sort((a,b)=>{const d=Math.abs(a.gr-grTarget)-Math.abs(b.gr-grTarget);if(d!==0)return d;if(preferIR0){const d2=Math.abs(a.ir)-Math.abs(b.ir);if(d2!==0)return d2;}return a.or-b.or;});render(grMin,grMax,grTarget);}
-function render(grMin,grMax,grTarget){const onlyValid=onlyValidEl.checked,tb=tbodyEl;tb.innerHTML='';const valide=risultati.filter(r=>r.valido);const closest=valide.length?valide.reduce((a,b)=>Math.abs(a.gr-grTarget)<=Math.abs(b.gr-grTarget)?a:b):null;for(const r of risultati){if(onlyValid&&!r.valido)continue;const tr=document.createElement('tr');tr.dataset.ir=r.ir;tr.dataset.or=r.or;tr.dataset.sfera=r.sfera;if(closest&&r.ir===closest.ir&&r.or===closest.or&&r.sfera===closest.sfera)tr.classList.add('ideal');tr.innerHTML=`<td>${r.ir}</td><td>${r.or}</td><td>${r.sfera}</td><td>${r.offset.toFixed(1)}</td><td>${r.gr.toFixed(2)}</td><td class="${r.valido?'ok':'not-ok'}">${r.valido?'✔️':'❌'}</td>`;tb.appendChild(tr);}tb.querySelectorAll('tr').forEach(tr=>tr.addEventListener('click',()=>{const ir=+tr.dataset.ir,orv=+tr.dataset.or,s=+tr.dataset.sfera,off=+offsetSlider.value;const gr=orv-ir+s+off;setCurrentCombo({ir,or:orv,sfera:s,offset:off,gr,valido:true});}));if(closest)setCurrentCombo(closest);else if(risultati.length)setCurrentCombo(risultati[0]);}
-function drawDim(ctx,x1,y1,x2,y2,label){ctx.save();ctx.strokeStyle='#0c2a4f';ctx.fillStyle='#0c2a4f';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.stroke();const ang=Math.atan2(y2-y1,x2-x1),ah=8;function arrow(x,y,a){ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x-ah*Math.cos(a-Math.PI/6),y-ah*Math.sin(a-Math.PI/6));ctx.lineTo(x-ah*Math.cos(a+Math.PI/6),y-ah*Math.sin(a+Math.PI/6));ctx.closePath();ctx.fill();}arrow(x1,y1,ang+Math.PI);arrow(x2,y2,ang);const mx=(x1+x2)/2,my=(y1+y2)/2;ctx.font='12px Arial';ctx.fillText(label,mx+6,my-6);ctx.restore();}
-function drawBearing(r){const c=canvasEl,ctx=c.getContext('2d'),W=c.width,H=c.height;ctx.clearRect(0,0,W,H);const cx=W/2,cy=H/2,R_or=Math.min(W,H)*0.35,track_or=R_or*0.1,R_ir=R_or*0.6,track_ir=R_ir*0.1,R_ball=R_or*0.13;ctx.save();ctx.translate(2,2);ctx.globalAlpha=0.12;ctx.fillStyle='#000';ctx.beginPath();ctx.arc(cx,cy,R_or,0,Math.PI*2);ctx.fill();ctx.restore();ctx.lineWidth=10;ctx.strokeStyle='#698db8';ctx.beginPath();ctx.arc(cx,cy,R_or,0,Math.PI*2);ctx.stroke();ctx.beginPath();ctx.arc(cx,cy,R_or-track_or,0,Math.PI*2);ctx.stroke();ctx.lineWidth=8;ctx.strokeStyle='#89a8d2';ctx.beginPath();ctx.arc(cx,cy,R_ir,0,Math.PI*2);ctx.stroke();ctx.beginPath();ctx.arc(cx,cy,R_ir-track_ir,0,Math.PI*2);ctx.stroke();const shift=Math.max(-6,Math.min(6,r.sfera));const ballTop={x:cx+shift,y:cy-(R_ir+R_or)/2+R_ball};const ballBot={x:cx-shift,y:cy+(R_ir+R_or)/2-R_ball};ctx.fillStyle='#cfe0f6';ctx.strokeStyle='#7fa1d8';ctx.lineWidth=2;ctx.beginPath();ctx.arc(ballTop.x,ballTop.y,R_ball,0,Math.PI*2);ctx.fill();ctx.stroke();ctx.beginPath();ctx.arc(ballBot.x,ballBot.y,R_ball,0,Math.PI*2);ctx.fill();ctx.stroke();ctx.strokeStyle='#4f79b3';ctx.lineWidth=1.2;for(const b of [ballTop,ballBot]){ctx.beginPath();ctx.moveTo(b.x-6,b.y);ctx.lineTo(b.x+6,b.y);ctx.moveTo(b.x,b.y-6);ctx.lineTo(b.x,b.y+6);ctx.stroke();}drawDim(ctx,cx-R_or,cy-R_or-20,cx+R_or,cy-R_or-20,`Ø OR: ${r.or.toFixed(0)} µm`);drawDim(ctx,cx-R_ir,cy+R_ir+24,cx+R_ir,cy+R_ir+24,`Ø IR: ${r.ir.toFixed(0)} µm`);const grMin=+grMinEl.value,grMax=+grMaxEl.value;const yBottom=cy+R_ir,yTop=cy+R_or;const frac=Math.max(0,Math.min(1,(r.gr-grMin)/Math.max(1e-6,(grMax-grMin))));const y2=yBottom+(yTop-yBottom)*frac;drawDim(ctx,cx+R_or+18,yBottom,cx+R_or+18,y2,`GR: ${r.gr.toFixed(2)} µm`);ctx.fillStyle='#0c2a4f';ctx.font='12px Arial';ctx.fillText('Centro sfera 1',ballTop.x+10,ballTop.y-8);ctx.fillText('Centro sfera 2',ballBot.x+10,ballBot.y+14);}
-const irMinEl=document.getElementById('irMin'),irMaxEl=document.getElementById('irMax'),orMinEl=document.getElementById('orMin'),orMaxEl=document.getElementById('orMax'),grMinEl=document.getElementById('grMin'),grMaxEl=document.getElementById('grMax'),offsetSlider=document.getElementById('offsetSlider'),preferIR0El=document.getElementById('preferIR0'),onlyValidEl=document.getElementById('onlyValid'),tbodyEl=document.querySelector('#tabellaRisultati tbody'),canvasEl=document.getElementById('schematicCanvas');document.getElementById('btnCalcola').addEventListener('click',calcola);onlyValidEl.addEventListener('change',calcola);offsetSlider.addEventListener('input',calcola);document.getElementById('btnIRminus').addEventListener('click',()=>{if(!currentCombo)return;const off=+offsetSlider.value;const ir=currentCombo.ir-1;const gr=currentCombo.or-ir+currentCombo.sfera+off;setCurrentCombo({...currentCombo,ir,gr});});document.getElementById('btnIRplus').addEventListener('click',()=>{if(!currentCombo)return;const off=+offsetSlider.value;const ir=currentCombo.ir+1;const gr=currentCombo.or-ir+currentCombo.sfera+off;setCurrentCombo({...currentCombo,ir,gr});});document.getElementById('btnORminus').addEventListener('click',()=>{if(!currentCombo)return;const off=+offsetSlider.value;const orv=currentCombo.or-1;const gr=orv-currentCombo.ir+currentCombo.sfera+off;setCurrentCombo({...currentCombo,or:orv,gr});});document.getElementById('btnORplus').addEventListener('click',()=>{if(!currentCombo)return;const off=+offsetSlider.value;const orv=currentCombo.or+1;const gr=orv-currentCombo.ir+currentCombo.sfera+off;setCurrentCombo({...currentCombo,or:orv,gr});});document.getElementById('btnSfera').addEventListener('click',()=>{if(!currentCombo)return;const off=+offsetSlider.value;const i=SFERE.indexOf(currentCombo.sfera);const s=SFERE[(i+1)%SFERE.length];const gr=currentCombo.or-currentCombo.ir+s+off;setCurrentCombo({...currentCombo,sfera:s,gr});});canvasEl.addEventListener('click',e=>{if(!currentCombo)return;const rect=canvasEl.getBoundingClientRect();const x=e.clientX-rect.left,y=e.clientY-rect.top;const cx=canvasEl.width/2,cy=canvasEl.height/2;const R_or=Math.min(canvasEl.width,canvasEl.height)*0.35;const R_ir=R_or*0.60;const dist=Math.hypot(x-cx,y-cy);const near=r=>Math.abs(dist-r)<12;const off=+offsetSlider.value;if(near(R_ir)){const dir=x>cx?1:-1;const ir=currentCombo.ir+dir;const gr=currentCombo.or-ir+currentCombo.sfera+off;setCurrentCombo({...currentCombo,ir,gr});}else if(near(R_or)){const dir=x>cx?1:-1;const orv=currentCombo.or+dir;const gr=orv-currentCombo.ir+currentCombo.sfera+off;setCurrentCombo({...currentCombo,or:orv,gr});}});calcola();
+// === LOGICA CALCOLO ===
+const SFERE=[0,-2,-4,2,4];
+let risultati=[],currentCombo=null;
+function setCurrentCombo(c){
+  currentCombo=c;
+  document.getElementById('stOR').textContent=c.or.toFixed(0);
+  document.getElementById('stIR').textContent=c.ir.toFixed(0);
+  document.getElementById('stOff').textContent=c.offset.toFixed(1);
+  document.getElementById('stSf1').textContent=c.sfera.toFixed(0);
+  document.getElementById('stSf2').textContent=c.sfera.toFixed(0);
+  document.getElementById('stGR').textContent=c.gr.toFixed(3);
+  drawMachineStyle(c);
+}
+function calcola(){
+  const irMin=+document.getElementById('irMin').value;
+  const irMax=+document.getElementById('irMax').value;
+  const orMin=+document.getElementById('orMin').value;
+  const orMax=+document.getElementById('orMax').value;
+  const grMin=+document.getElementById('grMin').value;
+  const grMax=+document.getElementById('grMax').value;
+  const offset=+document.getElementById('offsetSlider').value;
+  document.getElementById('offsetValue').textContent=offset.toFixed(1)+' µm';
+  const preferIR0=document.getElementById('preferIR0').checked;
+  const grTarget=(grMin+grMax)/2;
+  risultati=[];
+  for(let ir=irMin;ir<=irMax;ir++){for(let orv=orMin;orv<=orMax;orv++){for(const s of SFERE){const gr=orv-ir+s+offset;const valido=gr>=grMin&&gr<=grMax;risultati.push({ir,or:orv,sfera:s,offset,gr,valido});}}}
+  risultati.sort((a,b)=>{const d=Math.abs(a.gr-grTarget)-Math.abs(b.gr-grTarget);if(d!==0)return d; if(preferIR0){const d2=Math.abs(a.ir)-Math.abs(b.ir); if(d2!==0)return d2;} return a.or-b.or;});
+  render(grMin,grMax,grTarget);
+}
+function render(grMin,grMax,grTarget){
+  const onlyValid=document.getElementById('onlyValid').checked;
+  const tb=document.querySelector('#tabellaRisultati tbody'); tb.innerHTML='';
+  const valide=risultati.filter(r=>r.valido);
+  const closest=valide.length?valide.reduce((a,b)=>Math.abs(a.gr-grTarget)<=Math.abs(b.gr-grTarget)?a:b):null;
+  for(const r of risultati){
+    if(onlyValid&&!r.valido) continue;
+    const tr=document.createElement('tr'); tr.dataset.ir=r.ir; tr.dataset.or=r.or; tr.dataset.sfera=r.sfera;
+    if(closest && r.ir===closest.ir && r.or===closest.or && r.sfera===closest.sfera) tr.classList.add('ideal');
+    tr.innerHTML=`<td>${r.ir}</td><td>${r.or}</td><td>${r.sfera}</td><td>${r.offset.toFixed(1)}</td><td>${r.gr.toFixed(2)}</td><td class="${r.valido?'ok':'not-ok'}">${r.valido?'✔️':'❌'}</td>`;
+    tb.appendChild(tr);
+  }
+  tb.querySelectorAll('tr').forEach(tr=>tr.addEventListener('click',()=>{
+    const ir=+tr.dataset.ir,orv=+tr.dataset.or,s=+tr.dataset.sfera,off=+document.getElementById('offsetSlider').value;
+    const gr=orv-ir+s+off; setCurrentCombo({ir,or:orv,sfera:s,offset:off,gr,valido:true});
+  }));
+  if(closest) setCurrentCombo(closest); else if(risultati.length) setCurrentCombo(risultati[0]);
+}
+// === DISEGNO TIPO-MACCHINA (ispirato allo screenshot) ===
+function drawDim(ctx,x1,y1,x2,y2,label){
+  ctx.save(); ctx.strokeStyle='#0c2a4f'; ctx.fillStyle='#0c2a4f'; ctx.lineWidth=2;
+  ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2); ctx.stroke();
+  const ang=Math.atan2(y2-y1,x2-x1),ah=8;
+  function arr(x,y,a){ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x-ah*Math.cos(a-Math.PI/6),y-ah*Math.sin(a-Math.PI/6));ctx.lineTo(x-ah*Math.cos(a+Math.PI/6),y-ah*Math.sin(a+Math.PI/6));ctx.closePath();ctx.fill();}
+  arr(x1,y1,ang+Math.PI); arr(x2,y2,ang); const mx=(x1+x2)/2,my=(y1+y2)/2; ctx.font='12px Arial'; ctx.fillText(label,mx+6,my-6);
+  ctx.restore();
+}
+function dashedBox(ctx,x,y,w,h,label){
+  ctx.save(); ctx.setLineDash([6,6]); ctx.strokeStyle='#7fa1d8'; ctx.lineWidth=1.5;
+  ctx.strokeRect(x,y,w,h); ctx.setLineDash([]); ctx.fillStyle='#7fa1d8'; ctx.font='12px Arial'; ctx.fillText(label,x+w+6,y+10); ctx.restore();
+}
+function drawMachineStyle(r){
+  const c=document.getElementById('schematicCanvas'), ctx=c.getContext('2d'), W=c.width,H=c.height;
+  ctx.clearRect(0,0,W,H);
+  const cx=W*0.38, cy=H*0.52;
+  const R_or=Math.min(W,H)*0.28, track_or=R_or*0.10;
+  const R_ir=R_or*0.62, track_ir=R_ir*0.12;
+  const R_ball=R_or*0.12;
+  // bearing
+  ctx.save(); ctx.translate(2,2); ctx.globalAlpha=0.12; ctx.fillStyle='#000'; ctx.beginPath(); ctx.arc(cx,cy,R_or,0,Math.PI*2); ctx.fill(); ctx.restore();
+  ctx.lineWidth=8; ctx.strokeStyle='#6b8fbe';
+  ctx.beginPath(); ctx.arc(cx,cy,R_or,0,Math.PI*2); ctx.stroke();
+  ctx.beginPath(); ctx.arc(cx,cy,R_or-track_or,0,Math.PI*2); ctx.stroke();
+  ctx.lineWidth=6; ctx.strokeStyle='#8eacd6';
+  ctx.beginPath(); ctx.arc(cx,cy,R_ir,0,Math.PI*2); ctx.stroke();
+  ctx.beginPath(); ctx.arc(cx,cy,R_ir-track_ir,0,Math.PI*2); ctx.stroke();
+  // balls
+  const shift=Math.max(-6,Math.min(6,r.sfera));
+  const b1={x:cx+shift,y:cy-(R_ir+R_or)/2+R_ball}, b2={x:cx-shift,y:cy+(R_ir+R_or)/2-R_ball};
+  ctx.fillStyle='#cfe0f6'; ctx.strokeStyle='#7fa1d8'; ctx.lineWidth=2;
+  for(const b of [b1,b2]){ ctx.beginPath(); ctx.arc(b.x,b.y,R_ball,0,Math.PI*2); ctx.fill(); ctx.stroke();
+    ctx.strokeStyle='#4f79b3'; ctx.lineWidth=1.2; ctx.beginPath(); ctx.moveTo(b.x-6,b.y); ctx.lineTo(b.x+6,b.y); ctx.moveTo(b.x,b.y-6); ctx.lineTo(b.x,b.y+6); ctx.stroke(); }
+  // quotas OR / IR (orizzontali)
+  drawDim(ctx,cx-R_or,cy-R_or-22,cx+R_or,cy-R_or-22,`Ø OR: ${r.or.toFixed(0)} µm`);
+  drawDim(ctx,cx-R_ir,cy+R_ir+26,cx+R_ir,cy+R_ir+26,`Ø IR: ${r.ir.toFixed(0)} µm`);
+  // quota GR (verticale, con frecce nere come nella macchina)
+  const grMin=+document.getElementById('grMin').value, grMax=+document.getElementById('grMax').value;
+  const gTop=cy+R_ir, gBot=cy+R_or;
+  const frac=Math.max(0,Math.min(1,(r.gr-grMin)/Math.max(1e-6,(grMax-grMin))));
+  const gy=gTop + (gBot-gTop)*frac;
+  drawDim(ctx, cx+R_or+20, gTop, cx+R_or+20, gy, `GR: ${r.gr.toFixed(2)} µm`);
+  // box tratteggiati esplicativi (diametro sfera e misure anelli) a destra
+  dashedBox(ctx, W*0.66, cy-R_or*0.9, W*0.25, R_or*0.6, `Diametro sfera: ${r.sfera.toFixed(0)} µm`);
+  dashedBox(ctx, W*0.66, cy-R_or*0.15, W*0.25, R_or*0.35, `Misura diametro IR: ${r.ir.toFixed(0)} µm`);
+  ctx.fillStyle='#7fa1d8'; ctx.font='12px Arial';
+  ctx.fillText(`Misura diametro OR: ${r.or.toFixed(0)} µm`, W*0.66, cy+R_or*0.9);
+}
+function exportCSV(){
+  const valid=risultati.filter(r=>r.valido);
+  if(!valid.length){alert('Nessuna combinazione valida da esportare.');return;}
+  const header='IR,OR,Sfera,Offset,GR,Valido\n', rows=valid.map(r=>[r.ir,r.or,r.sfera,r.offset.toFixed(1),r.gr.toFixed(2),'OK'].join(',')).join('\n');
+  const blob=new Blob([header+rows],{type:'text/csv;charset=utf-8;'}); const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download='combinazioni_valide.csv'; a.click(); URL.revokeObjectURL(url);
+}
+// events
+document.addEventListener('DOMContentLoaded',()=>{
+  document.getElementById('btnCalcola').addEventListener('click',calcola);
+  document.getElementById('btnCSV').addEventListener('click',exportCSV);
+  document.getElementById('onlyValid').addEventListener('change',calcola);
+  document.getElementById('offsetSlider').addEventListener('input',calcola);
+  const upd=(chg)=>{ if(!currentCombo) return; const off=+document.getElementById('offsetSlider').value; const c=chg({...currentCombo}); c.gr=c.or-c.ir+c.sfera+off; setCurrentCombo(c); };
+  document.getElementById('btnIRminus').addEventListener('click',()=>upd(c=>{c.ir--;return c;}));
+  document.getElementById('btnIRplus').addEventListener('click', ()=>upd(c=>{c.ir++;return c;}));
+  document.getElementById('btnORminus').addEventListener('click',()=>upd(c=>{c.or--;return c;}));
+  document.getElementById('btnORplus').addEventListener('click', ()=>upd(c=>{c.or++;return c;}));
+  document.getElementById('btnSfera').addEventListener('click',   ()=>upd(c=>{const i=SFERE.indexOf(c.sfera); c.sfera=SFERE[(i+1)%SFERE.length]; return c;}));
+  const canvas=document.getElementById('schematicCanvas');
+  canvas.addEventListener('click',e=>{
+    if(!currentCombo) return;
+    const rect=canvas.getBoundingClientRect(); const x=e.clientX-rect.left; const y=e.clientY-rect.top;
+    const cx=canvas.width*0.38, cy=canvas.height*0.52;
+    const R_or=Math.min(canvas.width,canvas.height)*0.28; const R_ir=R_or*0.62;
+    const dist=Math.hypot(x-cx,y-cy), near=r=>Math.abs(dist-r)<12;
+    const off=+document.getElementById('offsetSlider').value;
+    if(near(R_ir)){ const dir=(x>cx?1:-1); const ir=currentCombo.ir+dir; const gr=currentCombo.or - ir + currentCombo.sfera + off; setCurrentCombo({...currentCombo, ir, gr}); }
+    else if(near(R_or)){ const dir=(x>cx?1:-1); const orv=currentCombo.or+dir; const gr= orv - currentCombo.ir + currentCombo.sfera + off; setCurrentCombo({...currentCombo, or: orv, gr}); }
+  });
+  calcola();
+});
