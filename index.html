@@ -13,16 +13,28 @@
 <body>
   <div class="container">
     <img src="./skf-192.png" alt="SKF" class="logo" />
-    <h1>Calcolo Gioco Radiale <span class="ver">v4.7 (PWA)</span></h1>
+    <h1>Calcolo Gioco Radiale <span class="ver">v4.8 (PWA)</span></h1>
 
     <div class="grid">
       <div class="card">
         <h2>Configurazione IR / OR</h2>
-        <label>IR min: <input type="number" id="irMin" value="-10"></label>
-        <label>IR max: <input type="number" id="irMax" value="10"></label>
-        <label>OR min: <input type="number" id="orMin" value="0"></label>
-        <label>OR max: <input type="number" id="orMax" value="30"></label>
+        <div class="row two">
+          <label>IR min: <input type="number" id="irMin" value="-10"></label>
+          <label>IR max: <input type="number" id="irMax" value="10"></label>
+        </div>
+        <div class="row two">
+          <label>OR min: <input type="number" id="orMin" value="0"></label>
+          <label>OR max: <input type="number" id="orMax" value="30"></label>
+        </div>
         <label class="inline"><input type="checkbox" id="preferIR0" checked> preferisci IR vicino a 0</label>
+        <div class="auto-block">
+          <label class="inline"><input type="checkbox" id="autoRange" checked> imposta automaticamente i range IR/OR dalla combinazione</label>
+          <div class="row two tight">
+            <label>± tolleranza IR (µm): <input type="number" id="tolIR" value="1" step="1" min="0"></label>
+            <label>± tolleranza OR (µm): <input type="number" id="tolOR" value="1" step="1" min="0"></label>
+          </div>
+          <button id="btnFissa" class="secondary">Fissa su combinazione corrente</button>
+        </div>
       </div>
 
       <div class="card">
@@ -58,7 +70,7 @@
       </div>
 
       <div class="card">
-        <h2>Schema cuscinetto (tipo macchina) </h2>
+        <h2>Schema cuscinetto (tipo macchina)</h2>
         <div class="schematic-grid">
           <div>
             <ul class="stack">
@@ -71,7 +83,7 @@
             </ul>
           </div>
           <div>
-            <canvas id="schematicCanvas" width="620" height="360" class="schematic-canvas"></canvas>
+            <canvas id="schematicCanvas" width="680" height="380" class="schematic-canvas"></canvas>
           </div>
         </div>
         <div class="row">
