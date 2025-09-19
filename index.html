@@ -13,7 +13,7 @@
 <body>
   <div class="container">
     <img src="./skf-192.png" alt="SKF" class="logo" />
-    <h1>Calcolo Gioco Radiale <span class="ver">v4.3 (PWA)</span></h1>
+    <h1>Calcolo Gioco Radiale <span class="ver">v4.4 (PWA)</span></h1>
 
     <div class="actions top">
       <button id="btnInstall" class="ghost" style="display:none">➕ Installa app</button>
@@ -83,15 +83,7 @@
           <div><strong>Sfere:</strong> <span id="schSf">—</span> µm</div>
           <div class="gr"><strong>= Gioco Radiale:</strong> <span id="schGR">—</span> µm</div>
         </div>
-        <svg id="schematic" viewBox="0 0 320 200" class="schematic-svg">
-          <circle cx="160" cy="100" r="75" class="ring outer"/>
-          <circle cx="160" cy="100" r="45" class="ring inner"/>
-          <circle id="ballTop" cx="160" cy="45" r="10" class="ball"/>
-          <circle id="ballBottom" cx="160" cy="155" r="10" class="ball"/>
-          <line x1="160" y1="165" x2="260" y2="165" class="guide"/>
-          <text x="265" y="170" class="label">GR</text>
-          <line id="grLine" x1="160" y1="165" x2="200" y2="165" class="gr-line"/>
-        </svg>
+        <canvas id="schematicCanvas" width="360" height="240" class="schematic-canvas"></canvas>
       </div>
     </div>
   </div>

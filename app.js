@@ -10,15 +10,52 @@ function setCurrentCombo(combo){
   document.getElementById('schOff').textContent = combo.offset.toFixed(1);
   document.getElementById('schSf').textContent  = combo.sfera.toFixed(0);
   document.getElementById('schGR').textContent  = combo.gr.toFixed(3);
-  drawSchematic(combo);
+  drawSchematicCanvas(combo);
 }
 
-function drawSchematic(r){
-  const grPix = Math.max(10, Math.min(100, r.gr));
-  document.getElementById('grLine').setAttribute('x2', String(160 + (grPix/100)*80));
+function drawSchematicCanvas(r){
+  const c = document.getElementById('schematicCanvas');
+  if(!c) return;
+  const ctx = c.getContext('2d');
+  const W = c.width, H = c.height;
+  ctx.clearRect(0,0,W,H);
+
+  const cx = W/2, cy = H/2;
+  const R_or = Math.min(W,H)*0.35;
+  const R_ir = R_or*0.6;
+  const R_ball = R_or*0.13;
+
+  // outer ring
+  ctx.lineWidth = 6;
+  ctx.strokeStyle = '#6c8fbf';
+  ctx.beginPath(); ctx.arc(cx,cy,R_or,0,Math.PI*2); ctx.stroke();
+
+  // inner ring
+  ctx.strokeStyle = '#9bb7dc';
+  ctx.beginPath(); ctx.arc(cx,cy,R_ir,0,Math.PI*2); ctx.stroke();
+
+  // balls
   const shift = Math.max(-6, Math.min(6, r.sfera));
-  document.getElementById('ballTop').setAttribute('cx', String(160 + shift));
-  document.getElementById('ballBottom').setAttribute('cx', String(160 - shift));
+  ctx.fillStyle = '#b7c9e6'; ctx.strokeStyle = '#7fa1d8'; ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.arc(cx+shift, cy-(R_ir+R_or)/2+R_ball, R_ball, 0, Math.PI*2); ctx.fill(); ctx.stroke();
+  ctx.beginPath(); ctx.arc(cx-shift, cy+(R_ir+R_or)/2-R_ball, R_ball, 0, Math.PI*2); ctx.fill(); ctx.stroke();
+
+  // guide + GR arrow
+  ctx.strokeStyle = '#7fa1d8'; ctx.setLineDash([4,4]); ctx.lineWidth = 2;
+  const yGuide = cy + R_or + 15;
+  ctx.beginPath(); ctx.moveTo(cx, yGuide); ctx.lineTo(cx + R_or, yGuide); ctx.stroke();
+  ctx.setLineDash([]);
+
+  const grMin = parseFloat(document.getElementById('grMin').value);
+  const grMax = parseFloat(document.getElementById('grMax').value);
+  const grClamped = Math.max(grMin, Math.min(grMax, r.gr));
+  const frac = (grClamped - grMin) / Math.max(1e-6, (grMax - grMin));
+  const grLen = frac * R_or;
+
+  ctx.strokeStyle = '#1f78d1'; ctx.lineWidth = 4;
+  ctx.beginPath(); ctx.moveTo(cx, yGuide); ctx.lineTo(cx + grLen, yGuide); ctx.stroke();
+
+  ctx.fillStyle = '#0c2a4f'; ctx.font = '12px Arial'; ctx.fillText('GR', cx + R_or + 6, yGuide + 4);
 }
 
 function calcola(){
@@ -73,20 +110,42 @@ function render(grMin, grMax, grTarget){
     tbody.appendChild(tr);
   }
 
-  // Click-to-apply shows in schematic immediately
   tbody.querySelectorAll('tr').forEach(tr => {
     tr.addEventListener('click', () => {
       const ir = Number(tr.dataset.ir);
       const orv = Number(tr.dataset.or);
       const s  = Number(tr.dataset.sfera);
-      const offset = parseFloat(document.getElementById('offset').value);
-      const gr = orv - ir + s + offset;
-      setCurrentCombo({ ir, or: orv, sfera: s, offset, gr, valido: true });
+      const off = parseFloat(document.getElementById('offset').value);
+      const gr = orv - ir + s + off;
+      setCurrentCombo({ ir, or: orv, sfera: s, offset: off, gr, valido: true });
     });
   });
 
   if(closest) setCurrentCombo(closest);
   else if (risultati.length) setCurrentCombo(risultati[0]);
+
+  // update dashboard
+  document.getElementById('dashValid').textContent = valide.length;
+  document.getElementById('dashTarget').textContent = grTarget.toFixed(2);
+  const grAll = risultati.map(r=>r.gr);
+  if(grAll.length){
+    document.getElementById('dashRange').textContent = `${Math.min(...grAll).toFixed(2)} – ${Math.max(...grAll).toFixed(2)}`;
+    if(valide.length){
+      const irVals = valide.map(r=>r.ir), orVals = valide.map(r=>r.or), sfVals = valide.map(r=>r.sfera);
+      document.getElementById('dashIR').textContent = `${Math.min(...irVals)} – ${Math.max(...irVals)} µm`;
+      document.getElementById('dashOR').textContent = `${Math.min(...orVals)} – ${Math.max(...orVals)} µm`;
+      document.getElementById('dashSfere').textContent = `${Math.min(...sfVals)} – ${Math.max(...sfVals)} µm`;
+      const set = new Set(sfVals), all = new Set(SFERE);
+      const missing = [...all].filter(x=>!set.has(x));
+      const used = [...set].sort((a,b)=>a-b).join(', ');
+      document.getElementById('dashCover').textContent = missing.length===0 ? `OK (usate: ${used})` : `mancano: ${missing.sort((a,b)=>a-b).join(', ')}`;
+    } else {
+      document.getElementById('dashIR').textContent = '–';
+      document.getElementById('dashOR').textContent = '–';
+      document.getElementById('dashSfere').textContent = '–';
+      document.getElementById('dashCover').textContent = '–';
+    }
+  }
 }
 
 function exportCSV(){
