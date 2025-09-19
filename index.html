@@ -2,157 +2,41 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-    <meta charset="UTF-8">
-    <title>SKF - Calcolo Gioco Radiale</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #005BAC;
-            color: white;
-            padding: 20px;
-        }
-        .logo {
-            width: 120px;
-            margin-bottom: 20px;
-        }
-        .section {
-            background-color: #003F7F;
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-        }
-        .section h3 {
-            margin-top: 0;
-        }
-        label {
-            display: block;
-            margin-top: 10px;
-        }
-        input {
-            width: 100%;
-            padding: 5px;
-            margin-top: 5px;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 10px;
-            background-color: white;
-            color: black;
-        }
-        th, td {
-            border: 1px solid #0070D1;
-            padding: 8px;
-            text-align: center;
-        }
-        .result {
-            font-weight: bold;
-            margin-top: 20px;
-            font-size: 1.2em;
-        }
-        .ok { background-color: #D4EDDA; color: green; }
-        .not-ok { background-color: #F8D7DA; color: red; }
-        .ideal { background-color: #FFF3CD; font-weight: bold; }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SKF - Calcolo Gioco Radiale v3.1</title>
+  <link rel="icon" type="image/png" href="favicon.ico">
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-    <img src="skf-192.png" alt="SKF Logo" class="logo">
-    <h1>Calcolo Gioco Radiale SKF</h1>
+  <div class="container">
+    <img src="skf-192.png" alt="SKF Logo" class="logo" />
+    <h1>Calcolo Gioco Radiale v3.1</h1>
 
-    <div class="section">
-        <h3>🎯 Parametri di Gioco Radiale</h3>
-        <label for="gr_min">Gioco Radiale Minimo (µm)</label>
-        <input type="number" id="gr_min" value="36">
-
-        <label for="gr_max">Gioco Radiale Massimo (µm)</label>
-        <input type="number" id="gr_max" value="40">
+    <div class="configurazione">
+      <h2>Configurazione IR e OR</h2>
+      <label>IR min: <input type="number" id="irMin" value="-10" /></label>
+      <label>IR max: <input type="number" id="irMax" value="10" /></label>
+      <label>OR min: <input type="number" id="orMin" value="0" /></label>
+      <label>OR max: <input type="number" id="orMax" value="30" /></label>
+      <label>Offset (da -5 a +10): <input type="number" id="offset" value="0" min="-5" max="10"/></label>
+      <label>Gioco radiale minimo: <input type="number" id="grMin" value="35" /></label>
+      <label>Gioco radiale massimo: <input type="number" id="grMax" value="40" /></label>
+      <button onclick="calcola()">Calcola Combinazioni</button>
     </div>
 
-    <div class="section">
-        <h3>🔩 Parametri IR / OR</h3>
-        <label for="ir_min">IR Min (µm)</label>
-        <input type="number" id="ir_min" value="-10">
-
-        <label for="ir_max">IR Max (µm)</label>
-        <input type="number" id="ir_max" value="0">
-
-        <label for="or_min">OR Min (µm)</label>
-        <input type="number" id="or_min" value="10">
-
-        <label for="or_max">OR Max (µm)</label>
-        <input type="number" id="or_max" value="20">
+    <div id="risultato">
+      <h2>Combinazioni Valide</h2>
+      <table id="tabellaRisultati">
+        <thead>
+          <tr>
+            <th>IR</th><th>OR</th><th>Sfera</th><th>Gioco Radiale</th><th>Valido?</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
     </div>
-
-    <div class="section">
-        <h3>⚙️ Offset Appaiatura</h3>
-        <label for="offset">Offset (µm) [da -5 a +10]</label>
-        <input type="number" id="offset" value="9.0" min="-5" max="10" step="0.1">
-    </div>
-
-    <div class="section">
-        <h3>📊 Combinazioni Calcolate</h3>
-        <table id="resultsTable">
-            <thead>
-                <tr>
-                    <th>IR</th>
-                    <th>OR</th>
-                    <th>Sfera</th>
-                    <th>Offset</th>
-                    <th>GR (µm)</th>
-                    <th>Valido?</th>
-                </tr>
-            </thead>
-            <tbody id="resultsBody"></tbody>
-        </table>
-        <div class="result" id="summary"></div>
-    </div>
-
-    <script>
-        const sfere = [0, -2, -4, 2, 4];
-
-        function aggiornaRisultati() {
-            const irMin = parseFloat(document.getElementById("ir_min").value);
-            const irMax = parseFloat(document.getElementById("ir_max").value);
-            const orMin = parseFloat(document.getElementById("or_min").value);
-            const orMax = parseFloat(document.getElementById("or_max").value);
-            const grMin = parseFloat(document.getElementById("gr_min").value);
-            const grMax = parseFloat(document.getElementById("gr_max").value);
-            const offset = parseFloat(document.getElementById("offset").value);
-            const grTarget = (grMin + grMax) / 2;
-
-            const resultsBody = document.getElementById("resultsBody");
-            resultsBody.innerHTML = "";
-
-            let validCount = 0;
-
-            for (let ir = irMin; ir <= irMax; ir++) {
-                for (let or = orMin; or <= orMax; or++) {
-                    for (let sfera of sfere) {
-                        const gr = ir + or + sfera + offset;
-                        const valido = gr >= grMin && gr <= grMax;
-                        let classe = valido ? 'ok' : 'not-ok';
-                        if (valido && Math.abs(gr - grTarget) <= 0.3) {
-                            classe = 'ideal';
-                        }
-                        const row = `<tr class="${classe}">
-                            <td>${ir}</td>
-                            <td>${or}</td>
-                            <td>${sfera}</td>
-                            <td>${offset.toFixed(1)}</td>
-                            <td>${gr.toFixed(2)}</td>
-                            <td>${valido ? '✔️' : '❌'}</td>
-                        </tr>`;
-                        resultsBody.innerHTML += row;
-                        if (valido) validCount++;
-                    }
-                }
-            }
-
-            document.getElementById("summary").textContent = `${validCount} combinazioni valide trovate.`;
-        }
-
-        document.querySelectorAll("input").forEach(input => input.addEventListener("input", aggiornaRisultati));
-        aggiornaRisultati();
-    </script>
+  </div>
+  <script src="script.js"></script>
 </body>
 </html>
