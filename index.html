@@ -11,7 +11,7 @@
 <body>
   <div class="container">
     <img src="skf-192.png" alt="SKF Logo" class="logo" />
-    <h1>Calcolo Gioco Radiale <span class="ver">v3.3</span></h1>
+    <h1>Calcolo Gioco Radiale <span class="ver">v3.4</span></h1>
 
     <div class="grid">
       <div class="card">
@@ -20,6 +20,7 @@
         <label>IR max: <input type="number" id="irMax" value="10"></label>
         <label>OR min: <input type="number" id="orMin" value="0"></label>
         <label>OR max: <input type="number" id="orMax" value="30"></label>
+        <label class="inline"><input type="checkbox" id="preferIR0" checked> preferisci IR vicino a 0</label>
       </div>
 
       <div class="card">
@@ -39,13 +40,15 @@
 
     <div class="grid">
       <div class="card">
-        <h2>Cruscotto combinazioni trovate</h2>
+        <h2>Cruscotto</h2>
         <div id="dashboard" class="dashboard">
           <div><strong>Valide:</strong> <span id="dashValid">0</span></div>
           <div><strong>GR target:</strong> <span id="dashTarget">–</span> µm</div>
+          <div><strong>GR ottenibile (min–max):</strong> <span id="dashRange">–</span> µm</div>
           <div><strong>IR ideale</strong> min–max: <span id="dashIR">–</span></div>
           <div><strong>OR ideale</strong> min–max: <span id="dashOR">–</span></div>
           <div><strong>Sfere usate</strong> min–max: <span id="dashSfere">–</span></div>
+          <div><strong>Copertura sfere:</strong> <span id="dashCover">–</span></div>
         </div>
       </div>
 
@@ -59,7 +62,7 @@
           </thead>
           <tbody></tbody>
         </table>
-        <p class="legend">Le righe <span class="ideal">gialle</span> sono le più vicine al centro del range di GR.</p>
+        <p class="legend">Preferenza IR≈0 attiva: le righe <span class="ideal">gialle</span> sono le migliori (vicine al centro GR e con IR vicino a 0).</p>
       </div>
     </div>
   </div>
