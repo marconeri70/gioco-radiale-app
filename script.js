@@ -1,4 +1,3 @@
-
 function calcola() {
   const irMin = parseFloat(document.getElementById("irMin").value);
   const irMax = parseFloat(document.getElementById("irMax").value);
@@ -11,7 +10,6 @@ function calcola() {
 
   const tbody = document.querySelector("#tabellaRisultati tbody");
   tbody.innerHTML = "";
-  document.getElementById("btnCalcola").addEventListener("click", calcola);
 
   for (let ir = irMin; ir <= irMax; ir++) {
     for (let or = orMin; or <= orMax; or++) {
