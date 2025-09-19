@@ -4,28 +4,26 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SKF - Calcolo Gioco Radiale</title>
+  <title>Gioco Radiale SKF</title>
   <link rel="stylesheet" href="style.css" />
-  <link rel="icon" href="skf.png" type="image/png">
+  <link rel="icon" href="skf.png" type="image/png" />
 </head>
 <body>
   <div class="container">
-    <img src="skf.png" alt="SKF Logo" class="logo" />
-    <h1>Calcolo Gioco Radiale<br>v3.1</h1>
+    <img src="skf.png" class="logo" alt="SKF Logo" />
+    <h1>Calcolo Gioco Radiale</h1>
 
     <div class="config">
-      <h2>Configurazione IR e OR</h2>
       <label>IR min: <input type="number" id="irMin" value="-10"></label>
       <label>IR max: <input type="number" id="irMax" value="10"></label>
       <label>OR min: <input type="number" id="orMin" value="0"></label>
       <label>OR max: <input type="number" id="orMax" value="30"></label>
       <label>Offset (da -5 a +10): <input type="number" id="offset" value="0" min="-5" max="10"></label>
-      <label>Gioco radiale minimo: <input type="number" id="grMin" value="35"></label>
-      <label>Gioco radiale massimo: <input type="number" id="grMax" value="40"></label>
+      <label>Gioco Radiale min: <input type="number" id="grMin" value="35"></label>
+      <label>Gioco Radiale max: <input type="number" id="grMax" value="40"></label>
       <button onclick="calcola()">Calcola Combinazioni</button>
     </div>
 
-    <h2>Combinazioni Valide</h2>
     <table id="tabellaRisultati">
       <thead>
         <tr>
@@ -39,7 +37,6 @@
       <tbody></tbody>
     </table>
   </div>
-
   <script src="script.js"></script>
 </body>
 </html>
