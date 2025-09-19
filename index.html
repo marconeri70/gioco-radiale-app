@@ -1,42 +1,117 @@
-
 <!DOCTYPE html>
 <html lang="it">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SKF - Calcolo Gioco Radiale v3.1</title>
-  <link rel="icon" type="image/png" href="favicon.ico">
-  <link rel="stylesheet" href="style.css" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SKF - Calcolo Gioco Radiale</title>
+  <link rel="icon" type="image/png" href="skf-192.png">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #005BBB;
+      color: #000;
+      margin: 0;
+      padding: 20px;
+    }
+    .container {
+      max-width: 500px;
+      margin: auto;
+      background: white;
+      padding: 20px;
+      border-radius: 15px;
+    }
+    h1, h2 {
+      text-align: center;
+    }
+    input {
+      width: 100%;
+      margin-bottom: 10px;
+      padding: 8px;
+      font-size: 1em;
+    }
+    button {
+      width: 100%;
+      padding: 10px;
+      background-color: #005BBB;
+      color: white;
+      font-size: 1em;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    table {
+      width: 100%;
+      margin-top: 20px;
+      border-collapse: collapse;
+    }
+    th, td {
+      border: 1px solid #ccc;
+      padding: 5px;
+      text-align: center;
+    }
+    img.logo {
+      display: block;
+      margin: 0 auto 20px;
+      width: 80px;
+    }
+  </style>
 </head>
 <body>
   <div class="container">
-    <img src="skf-192.png" alt="SKF Logo" class="logo" />
+    <img src="skf-192.png" alt="SKF Logo" class="logo">
     <h1>Calcolo Gioco Radiale v3.1</h1>
+    <h2>Configurazione IR e OR</h2>
 
-    <div class="configurazione">
-      <h2>Configurazione IR e OR</h2>
-      <label>IR min: <input type="number" id="irMin" value="-10" /></label>
-      <label>IR max: <input type="number" id="irMax" value="10" /></label>
-      <label>OR min: <input type="number" id="orMin" value="0" /></label>
-      <label>OR max: <input type="number" id="orMax" value="30" /></label>
-      <label>Offset (da -5 a +10): <input type="number" id="offset" value="0" min="-5" max="10"/></label>
-      <label>Gioco radiale minimo: <input type="number" id="grMin" value="35" /></label>
-      <label>Gioco radiale massimo: <input type="number" id="grMax" value="40" /></label>
-      <button onclick="calcola()">Calcola Combinazioni</button>
-    </div>
+    <input type="number" id="irMin" placeholder="IR min" value="-10">
+    <input type="number" id="irMax" placeholder="IR max" value="10">
+    <input type="number" id="orMin" placeholder="OR min" value="0">
+    <input type="number" id="orMax" placeholder="OR max" value="30">
+    <input type="number" id="offset" placeholder="Offset (da -5 a +10)" value="0">
+    <input type="number" id="grMin" placeholder="Gioco radiale minimo" value="35">
+    <input type="number" id="grMax" placeholder="Gioco radiale massimo" value="40">
 
-    <div id="risultato">
-      <h2>Combinazioni Valide</h2>
-      <table id="tabellaRisultati">
-        <thead>
-          <tr>
-            <th>IR</th><th>OR</th><th>Sfera</th><th>Gioco Radiale</th><th>Valido?</th>
-          </tr>
-        </thead>
-        <tbody></tbody>
-      </table>
-    </div>
+    <button onclick="calcola()">Calcola Combinazioni</button>
+
+    <h2>Combinazioni Valide</h2>
+    <table id="tabellaRisultati">
+      <thead>
+        <tr>
+          <th>IR</th>
+          <th>OR</th>
+          <th>Sfera</th>
+          <th>Gioco Radiale</th>
+          <th>Valido?</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
   </div>
-  <script src="script.js"></script>
+
+  <script>
+    function calcola() {
+      const irMin = parseFloat(document.getElementById("irMin").value);
+      const irMax = parseFloat(document.getElementById("irMax").value);
+      const orMin = parseFloat(document.getElementById("orMin").value);
+      const orMax = parseFloat(document.getElementById("orMax").value);
+      const offset = parseFloat(document.getElementById("offset").value);
+      const grMin = parseFloat(document.getElementById("grMin").value);
+      const grMax = parseFloat(document.getElementById("grMax").value);
+      const sfere = [-4, -2, 0, 2, 4];
+
+      const tbody = document.querySelector("#tabellaRisultati tbody");
+      tbody.innerHTML = "";
+
+      for (let ir = irMin; ir <= irMax; ir++) {
+        for (let or = orMin; or <= orMax; or++) {
+          for (let sfera of sfere) {
+            const gr = or - ir + offset + sfera;
+            const valido = gr >= grMin && gr <= grMax ? "✅" : "❌";
+            const row = `<tr><td>${ir}</td><td>${or}</td><td>${sfera}</td><td>${gr.toFixed(3)} µm</td><td>${valido}</td></tr>`;
+            tbody.innerHTML += row;
+          }
+        }
+      }
+    }
+  </script>
 </body>
 </html>
