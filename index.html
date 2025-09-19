@@ -1,53 +1,86 @@
+
 <!DOCTYPE html>
 <html lang="it">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>SKF - Calcolo Gioco Radiale</title>
-  <link rel="icon" href="./favicon.ico" type="image/x-icon">
-  <link rel="apple-touch-icon" href="./skf-192.png">
-  <link rel="manifest" href="./manifest.json">
-  <meta name="theme-color" content="#005BBB"/>
-  <style>
-    body{font-family:Arial,Helvetica,sans-serif;background:#005BBB;color:#fff;margin:0}
-    .container{max-width:1100px;margin:20px auto;padding:20px}
-    .logo{width:80px;display:block;margin:0 auto 10px}
-    .actions{display:flex;gap:10px;align-items:center;margin:10px 0;flex-wrap:wrap}
-    button{background:#0072CE;border:none;color:#fff;padding:10px 16px;border-radius:8px;cursor:pointer}
-  </style>
+  <link rel="icon" href="favicon.ico" type="image/x-icon">
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
   <div class="container">
-    <img src="./skf-192.png" alt="SKF Logo" class="logo" />
-    <h1>Calcolo Gioco Radiale <span style="font-size:.8em;font-weight:400">v3.7.1 (PWA)</span></h1>
-    <div class="actions">
-      <button id="btnInstall" style="display:none">➕ Installa app</button>
-      <span id="installHint">Se non compare, usa “Aggiungi a schermata Home”.</span>
+    <img src="skf-192.png" alt="SKF Logo" class="logo" />
+    <h1>Calcolo Gioco Radiale <span class="ver">v3.6</span></h1>
+
+    <div class="grid">
+      <div class="card">
+        <h2>Configurazione IR / OR</h2>
+        <label>IR min: <input type="number" id="irMin" value="-10"></label>
+        <label>IR max: <input type="number" id="irMax" value="10"></label>
+        <label>OR min: <input type="number" id="orMin" value="0"></label>
+        <label>OR max: <input type="number" id="orMax" value="30"></label>
+        <label class="inline"><input type="checkbox" id="preferIR0" checked> preferisci IR vicino a 0</label>
+        <p class="hint">Suggerimento: clicca una riga della tabella per impostare automaticamente IR/OR min–max intorno a quei valori (±1 µm).</p>
+      </div>
+
+      <div class="card">
+        <h2>Gioco Radiale & Offset</h2>
+        <label>Offset (da -5 a +10): <input type="number" id="offset" value="0" min="-5" max="10" step="0.1"></label>
+        <label>GR minimo (µm): <input type="number" id="grMin" value="35" step="0.1"></label>
+        <label>GR massimo (µm): <input type="number" id="grMax" value="40" step="0.1"></label>
+        <label>Sfere fisse: <code>−4, −2, 0, +2, +4</code></label>
+      </div>
     </div>
-    <p>Se vedi l’icona rotta sopra, significa che <strong>skf-192.png</strong> non è stato caricato nella stessa cartella di <strong>index.html</strong>.</p>
+
+    <div class="actions">
+      <button id="btnCalcola">Calcola Combinazioni</button>
+      <label class="inline"><input type="checkbox" id="onlyValid"> mostra solo valide</label>
+      <button id="btnCSV" class="secondary" title="Scarica le combinazioni valide">Esporta CSV</button>
+    </div>
+
+    <div class="grid">
+      <div class="card">
+        <h2>Cruscotto</h2>
+        <div id="dashboard" class="dashboard">
+          <div><strong>Valide:</strong> <span id="dashValid">0</span></div>
+          <div><strong>GR target:</strong> <span id="dashTarget">–</span> µm</div>
+          <div><strong>GR ottenibile (min–max):</strong> <span id="dashRange">–</span> µm</div>
+          <div><strong>IR ideale</strong> min–max: <span id="dashIR">–</span></div>
+          <div><strong>OR ideale</strong> min–max: <span id="dashOR">–</span></div>
+          <div><strong>Sfere usate</strong> min–max: <span id="dashSfere">–</span></div>
+          <div><strong>Copertura sfere:</strong> <span id="dashCover">–</span></div>
+        </div>
+      </div>
+
+      <div class="card table-card">
+        <h2>Combinazioni</h2>
+        <div class="table-wrap">
+          <table id="tabellaRisultati">
+            <thead>
+              <tr>
+                <th>IR</th><th>OR</th><th>Sfera</th><th>Offset</th><th>GR (µm)</th><th>Valido?</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+        <p class="legend">Preferenza IR≈0 attiva: le righe <span class="ideal">gialle</span> sono le migliori (vicine al centro GR e con IR vicino a 0). Clicca una riga per impostare i limiti IR/OR.</p>
+      </div>
+    </div>
+
+    <div class="grid">
+      <div class="card">
+        <h2>Grafico distribuzione GR (tutte le combinazioni)</h2>
+        <canvas id="chartAll" width="700" height="260"></canvas>
+      </div>
+      <div class="card">
+        <h2>Grafico distribuzione GR (solo valide)</h2>
+        <canvas id="chartValid" width="700" height="260"></canvas>
+      </div>
+    </div>
   </div>
 
-  <script>
-    // SW con scope relativo: funziona anche su sotto-cartelle GitHub Pages
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js', { scope: './' });
-      });
-    }
-    let deferredPrompt=null;
-    window.addEventListener('beforeinstallprompt', e => {
-      e.preventDefault();
-      deferredPrompt = e;
-      document.getElementById('btnInstall').style.display='inline-block';
-    });
-    document.getElementById('btnInstall').addEventListener('click', async () => {
-      if(!deferredPrompt) return;
-      deferredPrompt.prompt();
-      await deferredPrompt.userChoice;
-      deferredPrompt=null;
-      document.getElementById('btnInstall').style.display='none';
-      document.getElementById('installHint').textContent='Installazione avviata.';
-    });
-  </script>
+  <script src="script.js"></script>
 </body>
 </html>
