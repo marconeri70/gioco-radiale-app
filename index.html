@@ -54,7 +54,7 @@
 </head>
 <body>
     <img src="skf-192.png" alt="SKF Logo" class="logo">
-    <h1>Calcolo Gioco Radiale SKF</h1>
+    <h1>Calcolo Gioco Radiale SKF v3.2</h1>
 
     <div class="section">
         <h3>Parametri di Gioco Radiale</h3>
@@ -63,6 +63,9 @@
 
         <label for="gr_max">Gioco Radiale Massimo (µm)</label>
         <input type="number" id="gr_max" value="40">
+
+        <label for="offset">Offset (da -5 a +10 µm)</label>
+        <input type="number" id="offset" value="0" min="-5" max="10">
     </div>
 
     <div class="section">
@@ -88,6 +91,7 @@
                     <th>IR</th>
                     <th>OR</th>
                     <th>Sfera</th>
+                    <th>Offset</th>
                     <th>GR (µm)</th>
                     <th>Valido?</th>
                 </tr>
@@ -100,8 +104,8 @@
     <script>
         const sfere = [0, -2, -4, 2, 4];
 
-        function calcolaGR(ir, or, sfera) {
-            return or - ir + sfera;
+        function calcolaGR(ir, or, sfera, offset) {
+            return or - ir + sfera + offset;
         }
 
         function aggiornaRisultati() {
@@ -111,20 +115,22 @@
             const orMax = parseFloat(document.getElementById("or_max").value);
             const grMin = parseFloat(document.getElementById("gr_min").value);
             const grMax = parseFloat(document.getElementById("gr_max").value);
+            const offset = parseFloat(document.getElementById("offset").value);
 
             const resultsBody = document.getElementById("resultsBody");
             resultsBody.innerHTML = "";
 
             let validCount = 0;
-            for (let ir = irMin; ir <= irMax; ir += 5) {
-                for (let or = orMin; or <= orMax; or += 5) {
+            for (let ir = irMin; ir <= irMax; ir++) {
+                for (let or = orMin; or <= orMax; or++) {
                     for (let sfera of sfere) {
-                        const gr = calcolaGR(ir, or, sfera);
+                        const gr = calcolaGR(ir, or, sfera, offset);
                         const valido = gr >= grMin && gr <= grMax;
                         const row = `<tr>
                             <td>${ir}</td>
                             <td>${or}</td>
                             <td>${sfera}</td>
+                            <td>${offset}</td>
                             <td>${gr.toFixed(2)}</td>
                             <td class="${valido ? 'ok' : 'not-ok'}">${valido ? '✔️' : '❌'}</td>
                         </tr>`;
