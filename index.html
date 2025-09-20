@@ -1,103 +1,67 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>SKF - Calcolo Gioco Radiale</title>
-  <link rel="manifest" href="./manifest.json">
-  <meta name="theme-color" content="#005BBB"/>
-  <link rel="apple-touch-icon" href="./skf-192.png">
-  <link rel="icon" href="./favicon.ico" type="image/x-icon">
-  <link rel="stylesheet" href="./style.css" />
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>SKF — Cuscinetto Interattivo (IR/OR/GR)</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div class="container">
-    <img src="./skf-192.png" alt="SKF" class="logo" />
-    <h1>Calcolo Gioco Radiale <span class="ver">v4.8 (PWA)</span></h1>
-
-    <div class="grid">
-      <div class="card">
-        <h2>Configurazione IR / OR</h2>
-        <div class="row two">
-          <label>IR min: <input type="number" id="irMin" value="-10"></label>
-          <label>IR max: <input type="number" id="irMax" value="10"></label>
-        </div>
-        <div class="row two">
-          <label>OR min: <input type="number" id="orMin" value="0"></label>
-          <label>OR max: <input type="number" id="orMax" value="30"></label>
-        </div>
-        <label class="inline"><input type="checkbox" id="preferIR0" checked> preferisci IR vicino a 0</label>
-        <div class="auto-block">
-          <label class="inline"><input type="checkbox" id="autoRange" checked> imposta automaticamente i range IR/OR dalla combinazione</label>
-          <div class="row two tight">
-            <label>± tolleranza IR (µm): <input type="number" id="tolIR" value="1" step="1" min="0"></label>
-            <label>± tolleranza OR (µm): <input type="number" id="tolOR" value="1" step="1" min="0"></label>
-          </div>
-          <button id="btnFissa" class="secondary">Fissa su combinazione corrente</button>
-        </div>
-      </div>
-
-      <div class="card">
-        <h2>Gioco Radiale & Offset</h2>
-        <label>GR minimo (µm): <input type="number" id="grMin" value="35" step="0.1"></label>
-        <label>GR massimo (µm): <input type="number" id="grMax" value="40" step="0.1"></label>
-        <div class="offset-row">
-          <span>Offset (−5…+10 µm):</span>
-          <input type="range" id="offsetSlider" min="-5" max="10" step="0.1" value="0">
-          <output id="offsetValue">0.0 µm</output>
-        </div>
-        <label>Sfere fisse: <code>−4, −2, 0, +2, +4</code></label>
-      </div>
+  <header>
+    <div class="brand">
+      <div class="logo">SKF</div>
+      <h1>Calcolo Gioco Radiale • schema interattivo</h1>
     </div>
+  </header>
 
-    <div class="actions">
-      <button id="btnCalcola">Calcola Combinazioni</button>
-      <label class="inline"><input type="checkbox" id="onlyValid"> mostra solo valide</label>
-      <button id="btnCSV" class="secondary">Esporta CSV</button>
-    </div>
+  <main>
+    <section class="card">
+      <h2>Configurazione</h2>
+      <div class="grid">
+        <label>IR min <input type="number" id="irMin" value="-10" step="1"></label>
+        <label>IR max <input type="number" id="irMax" value="10" step="1"></label>
+        <label>OR min <input type="number" id="orMin" value="0" step="1"></label>
+        <label>OR max <input type="number" id="orMax" value="30" step="1"></label>
+        <label>GR minimo (µm) <input type="number" id="grMin" value="35" step="0.1"></label>
+        <label>GR massimo (µm) <input type="number" id="grMax" value="40" step="0.1"></label>
+        <label>Offset (µm) <input type="range" id="offset" min="-5" max="10" step="0.1" value="0"></label>
+        <output id="offOut">0.0 µm</output>
+      </div>
+      <div class="row">
+        <button id="btnCalc">Calcola combinazioni</button>
+        <label class="inline"><input type="checkbox" id="onlyValid"> mostra solo valide</label>
+      </div>
+    </section>
 
-    <div class="grid">
-      <div class="card table-card">
+    <section class="card two">
+      <div>
         <h2>Combinazioni</h2>
         <div class="table-wrap">
-          <table id="tabellaRisultati">
-            <thead>
-              <tr><th>IR</th><th>OR</th><th>Sfera</th><th>Offset</th><th>GR (µm)</th><th>Valido?</th></tr>
-            </thead>
+          <table id="tbl">
+            <thead><tr><th>IR</th><th>OR</th><th>Sfera</th><th>Offset</th><th>GR (µm)</th><th>Valido?</th></tr></thead>
             <tbody></tbody>
           </table>
         </div>
+        <p class="hint">Clicca una riga per aggiornare lo schema.</p>
       </div>
 
-      <div class="card">
-        <h2>Schema cuscinetto (tipo macchina)</h2>
-        <div class="schematic-grid">
-          <div>
-            <ul class="stack">
-              <li><span class="lab">Ø OR</span> <span id="stOR">—</span> µm</li>
-              <li><span class="lab">Ø IR</span> <span id="stIR">—</span> µm</li>
-              <li><span class="lab">Offset</span> <span id="stOff">—</span> µm</li>
-              <li><span class="lab">Misura sfera</span> <span id="stSf1">—</span> µm</li>
-              <li><span class="lab">Misura sfera</span> <span id="stSf2">—</span> µm</li>
-              <li class="sum">= <b>GIOCO RADIALE</b> <span id="stGR">—</span> µm</li>
-            </ul>
-          </div>
-          <div>
-            <canvas id="schematicCanvas" width="680" height="380" class="schematic-canvas"></canvas>
-          </div>
-        </div>
-        <div class="row">
-          <button id="btnIRminus">IR −1</button>
-          <button id="btnIRplus">IR +1</button>
-          <button id="btnORminus">OR −1</button>
-          <button id="btnORplus">OR +1</button>
-          <button id="btnSfera">Cambia sfera</button>
-        </div>
-        <p class="hint">Clic sul bordo <b>interno</b> → IR ±1, sul bordo <b>esterno</b> → OR ±1.</p>
+      <div>
+        <h2>Schema cuscinetto (interattivo)</h2>
+        <svg id="bearingSVG" viewBox="0 0 900 540"></svg>
+        <ul class="stack">
+          <li><span>Ø OR</span><b id="valOR">—</b> µm</li>
+          <li><span>Ø IR</span><b id="valIR">—</b> µm</li>
+          <li><span>Offset</span><b id="valOff">—</b> µm</li>
+          <li><span>Sfera</span><b id="valSf">—</b> µm</li>
+          <li class="sum"><span>= Gioco Radiale</span><b id="valGR">—</b> µm</li>
+        </ul>
+        <p class="hint">Clic bordo <b>interno</b> = IR ±1, bordo <b>esterno</b> = OR ±1.</p>
       </div>
-    </div>
-  </div>
+    </section>
+  </main>
 
-  <script src="./app.js"></script>
+  <footer>© SKF demo – schema tecnico IR/OR/GR</footer>
+
+  <script src="app.js"></script>
 </body>
 </html>

@@ -1,35 +1,28 @@
-:root{ --skf-blue:#005BBB; --skf-dark:#003F7F; --skf-accent:#0072CE; }
+:root{--blue:#005BBB;--dark:#07356a;--light:#e6f0ff;--ink:#0c2a4f;--ok:#0a7a0a;--bad:#b20b0b;}
 *{box-sizing:border-box}
-body{ margin:0; font-family:Arial,Helvetica,sans-serif; background:var(--skf-blue); color:#fff; }
-.container{ max-width:1280px; margin:20px auto; padding:20px }
-.logo{ width:70px; display:block; margin:0 auto 12px }
-h1{text-align:center;margin:0 0 15px}.ver{font-size:.7em;font-weight:400}
-.grid{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(340px,1fr))}
-.card{background:var(--skf-dark);border-radius:12px;padding:16px;box-shadow:0 6px 14px rgba(0,0,0,.15)}
-.card h2{margin:0 0 10px}
-label{display:block;margin:8px 0;color:#e9f0ff}
-.inline{display:flex;align-items:center;gap:8px}
-.hint{font-size:.85rem;color:#cfe2ff;margin-top:6px}
-input,select{width:100%;padding:8px;border-radius:8px;border:1px solid #1a5fb4}
-code{background:#072e62;color:#cde3ff;padding:2px 6px;border-radius:6px}
-.actions{display:flex;align-items:center;gap:10px;margin:16px 0;flex-wrap:wrap}
-button{background:var(--skf-accent);border:none;color:#fff;padding:10px 16px;border-radius:8px;cursor:pointer}
-button.secondary{background:#1f78d1}button:hover{filter:brightness(1.05)}
-.table-wrap{max-height:420px;overflow:auto;border-radius:10px}
+body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;background:var(--blue);color:#fff}
+header{padding:12px 16px;background:#004ea5;box-shadow:0 2px 8px rgba(0,0,0,.25)}
+.brand{display:flex;align-items:center;gap:12px}
+.logo{width:48px;height:48px;border-radius:12px;background:#0a57d6;display:grid;place-items:center;font-weight:800}
+main{max-width:1200px;margin:16px auto;padding:0 12px;display:grid;gap:16px}
+.card{background:var(--dark);border-radius:14px;padding:14px;box-shadow:0 10px 16px rgba(0,0,0,.2)}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.grid{display:grid;grid-template-columns:repeat(4,minmax(140px,1fr));gap:10px}
+label{display:flex;flex-direction:column;font-size:.95rem}
+input,button{border-radius:10px;border:1px solid #1a5fb4;padding:8px}
+button{background:#1e6fe3;color:#fff;border:none;cursor:pointer}
+button:hover{filter:brightness(1.06)}
+.row{display:flex;gap:12px;align-items:center;margin-top:8px}
+.inline{display:flex;align-items:center;gap:6px}
+.table-wrap{max-height:360px;overflow:auto;border-radius:10px}
 table{width:100%;border-collapse:collapse;background:#fff;color:#000;border-radius:10px;overflow:hidden}
-th,td{border:1px solid #c7d7ef;padding:8px;text-align:center}
-th{background:#e6f0ff;position:sticky;top:0;z-index:1}
-.ok{color:#0a7a0a;font-weight:bold}.not-ok{color:#c51414;font-weight:bold}
-.ideal{background:#fff6c8}
-.schematic-canvas{width:100%;height:auto;background:#f9fbff;border:1px solid #c7d7ef;border-radius:12px}
-.row{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
-.row.two>label{flex:1}
-.schematic-grid{display:grid;grid-template-columns:280px 1fr;gap:12px}
-.stack{list-style:none;margin:0;padding:0}
-.stack li{display:flex;justify-content:space-between;gap:8px;padding:6px 8px;border-bottom:1px dashed #7ba6de}
-.stack .lab{opacity:.9}
-.stack .sum{background:#072e62;border-radius:8px;margin-top:8px;padding:8px}
-.offset-row{display:flex;align-items:center;gap:10px}
-.offset-row output{background:#072e62;padding:4px 8px;border-radius:8px;min-width:65px;text-align:center}
-.auto-block{margin-top:10px;padding:8px;border:1px dashed #7ba6de;border-radius:8px;background:#07356a}
-.row.two.tight>label{flex:1;margin:0}
+th,td{padding:8px;border:1px solid #c7d7ef;text-align:center}
+th{background:var(--light);position:sticky;top:0}
+.ok{color:var(--ok);font-weight:700}.ko{color:var(--bad);font-weight:700}
+.hint{opacity:.85}
+.stack{list-style:none;margin:10px 0 0;padding:0;background:#062d5b;border-radius:10px}
+.stack li{display:flex;justify-content:space-between;padding:8px 10px;border-bottom:1px dashed #7ba6de}
+.stack .sum{background:#04224b;border:0;border-radius:0 0 10px 10px}
+footer{text-align:center;opacity:.8;margin:8px 0}
+/* SVG */
+#bearingSVG{width:100%;height:auto;background:#f9fbff;border:1px solid #c7d7ef;border-radius:12px}
