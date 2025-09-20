@@ -47,7 +47,17 @@
 
       <div>
         <h2>Schema cuscinetto (interattivo)</h2>
-        <svg id="bearingSVG" viewBox="0 0 900 540"></svg>
+        <div class="schema-wrap">
+          <svg id="bearingSVG" viewBox="0 0 900 540"></svg>
+          <ul class="sum-box">
+            <li><span>+ Ø OR</span><b id="sumOR">—</b></li>
+            <li><span>− Ø IR</span><b id="sumIR">—</b></li>
+            <li><span>+ Offset</span><b id="sumOff">—</b></li>
+            <li><span>− Misura sfera 1</span><b id="sumSf1">—</b></li>
+            <li><span>− Misura sfera 2</span><b id="sumSf2">—</b></li>
+            <li class="total"><span>= GIOCO RADIALE</span><b id="sumGR">—</b></li>
+          </ul>
+        </div>
         <ul class="stack">
           <li><span>Ø OR</span><b id="valOR">—</b> µm</li>
           <li><span>Ø IR</span><b id="valIR">—</b> µm</li>

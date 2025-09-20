@@ -25,4 +25,9 @@ th{background:var(--light);position:sticky;top:0}
 .stack .sum{background:#04224b;border:0;border-radius:0 0 10px 10px}
 footer{text-align:center;opacity:.8;margin:8px 0}
 /* SVG */
+.schema-wrap{position:relative}
 #bearingSVG{width:100%;height:auto;background:#f9fbff;border:1px solid #c7d7ef;border-radius:12px}
+.sum-box{position:absolute;left:12px;top:12px;list-style:none;margin:0;padding:8px 10px;background:#ffffffcc;color:#0c2a4f;border:1px solid #c7d7ef;border-radius:10px;backdrop-filter: blur(4px)}
+.sum-box li{display:flex;justify-content:space-between;gap:12px;padding:2px 0;border-bottom:1px dashed #8eb3e6}
+.sum-box li.total{background:#072e62;color:#fff;border-radius:8px;border:0;padding:6px 8px;margin-top:6px}
+.sum-box li.total span{opacity:.9}
