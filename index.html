@@ -22,7 +22,6 @@
   </header>
 
   <main class="container">
-    <!-- SEZIONE PARAMETRI -->
     <section class="card">
       <h2>Parametri</h2>
       <div class="grid">
@@ -30,15 +29,12 @@
         <label>IR max <input type="number" id="irMax" value="10" step="1"></label>
         <label>OR min <input type="number" id="orMin" value="0" step="1"></label>
         <label>OR max <input type="number" id="orMax" value="30" step="1"></label>
-
         <label>GR minimo (µm) <input type="number" id="grMin" value="35" step="0.1"></label>
         <label>GR massimo (µm) <input type="number" id="grMax" value="40" step="0.1"></label>
-
         <label class="range">Offset (−5…+10 µm)
           <input type="range" id="offset" min="-5" max="10" step="0.1" value="0">
         </label>
         <output id="offOut" class="badge">0.0 µm</output>
-
         <label class="full chips">Sfumature sfere
           <span data-sfera="-4" class="chip chip-on">−4</span>
           <span data-sfera="-2" class="chip chip-on">−2</span>
@@ -59,7 +55,6 @@
       </div>
     </section>
 
-    <!-- SEZIONE KPI -->
     <section class="kpi">
       <div class="tile ok">
         <div class="k">Valide</div>
@@ -83,18 +78,12 @@
       </div>
     </section>
 
-    <!-- BARRA COPERTURA -->
     <section class="card">
       <h2>Copertura GR</h2>
-      <div class="bar">
-        <div id="barFill"></div>
-      </div>
-      <div class="legend">
-        <span>0%</span><span id="barPct">0%</span><span>100%</span>
-      </div>
+      <div class="bar"><div id="barFill"></div></div>
+      <div class="legend"><span>0%</span><span id="barPct">0%</span><span>100%</span></div>
     </section>
 
-    <!-- TABELLA COMBINAZIONI -->
     <section class="card">
       <div class="table-head">
         <h2>Combinazioni</h2>
@@ -113,9 +102,7 @@
       <div class="table-wrap">
         <table id="tbl">
           <thead>
-            <tr>
-              <th>IR</th><th>OR</th><th>Sfera</th><th>Offset</th><th>GR (µm)</th><th>Valido?</th>
-            </tr>
+            <tr><th>IR</th><th>OR</th><th>Sfera</th><th>Offset</th><th>GR (µm)</th><th>Valido?</th></tr>
           </thead>
           <tbody></tbody>
         </table>
