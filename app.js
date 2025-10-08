@@ -1,100 +1,118 @@
 const $=id=>document.getElementById(id);
+const KEY='skfTablesCSV';
+const SAMPLE=`class,d_min,d_max,gr_min,gr_max
+CN,30,50,6,20
+C3,30,50,13,28
+C4,30,50,25,43
+C5,30,50,45,61
+CN,10,18,3,10
+C3,10,18,7,15`;
+
 let SPHERES = new Set([-4,-2,0,2,4]);
-let data=[], current=null;
+let data=[];
+
+function loadCSV(){ return localStorage.getItem(KEY) || SAMPLE; }
+function saveCSV(csv){ localStorage.setItem(KEY,csv); }
+function parseCSV(csv){
+  const lines = csv.trim().split(/\r?\n/).filter(l=>l.trim());
+  lines.shift();
+  return lines.map(l=>{
+    const [cls,dmin,dmax,gmin,gmax]=l.split(',').map(s=>s.trim());
+    return {cls, dmin:+dmin, dmax:+dmax, gmin:+gmin, gmax:+gmax};
+  });
+}
+function findRange(cls,d,table){
+  const clsKey=cls.trim().toUpperCase();
+  let rows=table.filter(r=>r.cls.toUpperCase()===clsKey && d>r.dmin-1e-9 && d<=r.dmax+1e-9);
+  if(rows.length===0){
+    const base=clsKey.replace(/[LH]$/,''); // fallback base class
+    rows=table.filter(r=>r.cls.toUpperCase()===base && d>r.dmin-1e-9 && d<=r.dmax+1e-9);
+  }
+  return rows[0]||null;
+}
 
 function readInputs(){
   return {
+    cls: $('skfClass').value,
+    bore:+$('bore').value,
     irMin:+$('irMin').value, irMax:+$('irMax').value,
     orMin:+$('orMin').value, orMax:+$('orMax').value,
     grMin:+$('grMin').value, grMax:+$('grMax').value,
     off:+$('offset').value,
-    preferZero:$('preferZero')?$('preferZero').checked:true,
-    onlyValid:$('onlyValid')?$('onlyValid').checked:false,
-    spheres:[...SPHERES].sort((a,b)=>a-b)
+    onlyValid:$('onlyValid').checked,
+    table:parseCSV(loadCSV())
   };
+}
+function syncFromTable(){
+  const s=readInputs();
+  const r=findRange(s.cls,s.bore,s.table);
+  if(r){
+    $('grMin').value=r.gmin; $('grMax').value=r.gmax;
+    $('kGrMin').textContent=r.gmin; $('kGrMax').textContent=r.gmax;
+    $('skfHint').textContent=`Range da tabella: ${s.cls} per d=${s.bore} → ${r.gmin}…${r.gmax} µm.`;
+  }else{
+    $('skfHint').textContent=`Nessuna riga trovata per ${s.cls} a d=${s.bore}. Aggiungi nel menu “Gestisci Tabelle SKF”.`;
+  }
 }
 function calc(){
   const s=readInputs();
-  $('offOut').textContent = s.off.toFixed(1)+' µm';
-  $('kGrMin').textContent = s.grMin.toFixed(0);
-  $('kGrMax').textContent = s.grMax.toFixed(0);
-  $('kOffset').textContent = s.off.toFixed(1);
+  $('offOut').textContent=s.off.toFixed(1)+' µm';
+  $('kGrMin').textContent=s.grMin.toFixed(0);
+  $('kGrMax').textContent=s.grMax.toFixed(0);
+  $('kOffset').textContent=s.off.toFixed(1);
   data=[];
-  for(let ir=s.irMin; ir<=s.irMax; ir++){
-    for(let or=s.orMin; or<=s.orMax; or++){
-      for(const sf of s.spheres){
-        const gr = or - ir + sf + s.off;
-        const ok = gr>=s.grMin && gr<=s.grMax;
+  for(let ir=s.irMin;ir<=s.irMax;ir++){
+    for(let or=s.orMin;or<=s.orMax;or++){
+      for(const sf of [-4,-2,0,2,4]){
+        const gr=or-ir+sf+s.off;
+        const ok=gr>=s.grMin && gr<=s.grMax;
         data.push({ir,or,sfera:sf,off:s.off,gr,ok});
       }
     }
   }
-  const valid = data.filter(r=>r.ok);
-  $('kValid').textContent = valid.length;
-  $('kTotal').textContent = data.length;
-  const span = s.grMax - s.grMin, step = 0.5;
-  let covered=0;
-  for(let g=s.grMin; g<=s.grMax; g+=step)
-    if(valid.some(r=>Math.abs(r.gr-g)<=step/2)) covered++;
-  const pct=Math.round(covered/((span/step)+1)*100);
-  $('barFill').style.width=pct+'%'; $('barPct').textContent=pct+'%';
+  const valid=data.filter(r=>r.ok);
+  document.getElementById('kValid').textContent=valid.length;
+  document.getElementById('kTotal').textContent=data.length;
   const center=(s.grMin+s.grMax)/2;
   const score=r => (r.ok?0:1)*1e6 + Math.abs(r.ir)*100 + Math.abs(r.gr-center)*10 + r.or;
-  current = data.slice().sort((a,b)=>score(a)-score(b))[0];
-  $('kBest').textContent = current ? `IR ${current.ir}, OR ${current.or}, sfera ${current.sfera}, GR ${current.gr.toFixed(2)} µm` : '—';
+  const best=data.slice().sort((a,b)=>score(a)-score(b))[0];
+  document.getElementById('kBest').textContent=best?`IR ${best.ir}, OR ${best.or}, sfera ${best.sfera}, GR ${best.gr.toFixed(2)} µm`:'—';
   renderTable();
 }
 function renderTable(){
   const s=readInputs();
-  const tbody=$('tbl').querySelector('tbody'); tbody.innerHTML='';
-  const q=$('q')?$('q').value.trim().toLowerCase():'';
-  let rows=data.slice();
-  if(s.onlyValid) rows=rows.filter(r=>r.ok);
-  if(q) rows=rows.filter(r=> [r.ir,r.or,r.sfera,r.gr.toFixed(2)].some(x=>String(x).toLowerCase().includes(q)));
-  const center=(s.grMin+s.grMax)/2;
-  const sortBy=$('sortBy')?$('sortBy').value:'gr';
-  const cmp={
-    gr:(a,b)=>Math.abs(a.gr-center)-Math.abs(b.gr-center),
-    ir:(a,b)=>Math.abs(a.ir)-Math.abs(b.ir),
-    or:(a,b)=>a.or-b.or,
-    sfera:(a,b)=>a.sfera-b.sfera,
-  }[sortBy];
-  rows.sort(cmp);
+  const tb=document.querySelector('#tbl tbody'); tb.innerHTML='';
+  let rows=data.slice(); if(s.onlyValid) rows=rows.filter(r=>r.ok);
   rows.forEach(r=>{
     const tr=document.createElement('tr');
     tr.innerHTML=`<td>${r.ir}</td><td>${r.or}</td><td>${r.sfera}</td>
-                  <td>${r.off.toFixed(1)}</td><td>${r.gr.toFixed(2)}</td>
-                  <td class="${r.ok?'ok':'ko'}">${r.ok?'✔':'✖'}</td>`;
-    tr.addEventListener('click',()=>{
-      $('kBest').textContent=`IR ${r.ir}, OR ${r.or}, sfera ${r.sfera}, GR ${r.gr.toFixed(2)} µm`;
-    });
-    tbody.appendChild(tr);
+      <td>${r.off.toFixed(1)}</td><td>${r.gr.toFixed(2)}</td>
+      <td class="${r.ok?'ok':'ko'}">${r.ok?'✔':'✖'}</td>`;
+    tb.appendChild(tr);
   });
 }
 function setupChips(){
   document.querySelectorAll('.chip').forEach(el=>{
     el.addEventListener('click',()=>{
       const v=+el.dataset.sfera;
-      if(SPHERES.has(v)){ SPHERES.delete(v); el.classList.remove('chip-on'); el.classList.add('chip-off'); }
-      else { SPHERES.add(v); el.classList.remove('chip-off'); el.classList.add('chip-on'); }
+      if(SPHERES.has(v)){SPHERES.delete(v);el.classList.remove('chip-on');el.classList.add('chip-off');}
+      else{SPHERES.add(v);el.classList.remove('chip-off');el.classList.add('chip-on');}
       calc();
     });
   });
 }
-function exportCSV(){
-  const header=['IR','OR','Sfera','Offset','GR','Valido'];
-  const lines=[header.join(',')];
-  data.forEach(r=> lines.push([r.ir,r.or,r.sfera,r.off.toFixed(1),r.gr.toFixed(3),r.ok?'OK':'KO'].join(',')));
-  const blob=new Blob([lines.join('\n')],{type:'text/csv'});
-  const url=URL.createObjectURL(blob);
-  const a=document.createElement('a'); a.href=url; a.download='combinazioni.csv'; a.click();
-  URL.revokeObjectURL(url);
-}
-['irMin','irMax','orMin','orMax','grMin','grMax','sortBy','q'].forEach(id=>{
-  const el=document.getElementById(id); if(el) el.addEventListener('input',calc);
+// modal
+const modal=document.getElementById('modal'), csvTA=document.getElementById('csv');
+document.getElementById('btnTbl').addEventListener('click',()=>{csvTA.value=loadCSV(); modal.classList.remove('hidden');});
+document.getElementById('mClose').addEventListener('click',()=>modal.classList.add('hidden'));
+document.getElementById('mLoad').addEventListener('click',()=>csvTA.value=SAMPLE);
+document.getElementById('mSave').addEventListener('click',()=>{saveCSV(csvTA.value); modal.classList.add('hidden'); syncFromTable(); calc();});
+document.getElementById('mExport').addEventListener('click',()=>{
+  const blob=new Blob([loadCSV()],{type:'text/csv'});
+  const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download='skf-tabelle.csv'; a.click(); URL.revokeObjectURL(url);
 });
-const onlyValidEl=document.getElementById('onlyValid'); if(onlyValidEl) onlyValidEl.addEventListener('change',calc);
-const offsetEl=document.getElementById('offset'); if(offsetEl) offsetEl.addEventListener('input',calc);
+
+['skfClass','bore'].forEach(id=>document.getElementById(id).addEventListener('input',()=>{syncFromTable();calc();}));
+['irMin','irMax','orMin','orMax','grMin','grMax','offset','onlyValid'].forEach(id=>document.getElementById(id).addEventListener('input',calc));
 document.getElementById('btnCalc').addEventListener('click',calc);
-document.getElementById('btnCSV').addEventListener('click',exportCSV);
-setupChips(); calc();
+setupChips(); syncFromTable(); calc();

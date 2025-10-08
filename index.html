@@ -11,117 +11,109 @@
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <header class="appbar">
-    <div class="brand">
-      <div class="logo">SKF</div>
-      <div class="titles">
-        <h1>Calcolo Gioco Radiale</h1>
-        <p class="subtitle">IR / OR • sfere • offset — v5.1 PWA</p>
-      </div>
+<header class="appbar">
+  <div class="brand">
+    <div class="logo">SKF</div>
+    <div class="titles">
+      <h1>Calcolo Gioco Radiale</h1>
+      <p class="subtitle">Classi SKF D11‑1 • PWA v5.2</p>
     </div>
-    <div class="quick">
-      <button id="btnCalc" class="primary">Calcola combinazioni</button>
-      <button id="btnCSV" class="ghost">Esporta CSV</button>
+  </div>
+  <div class="quick">
+    <button id="btnTbl" class="ghost">Gestisci Tabelle SKF</button>
+    <button id="btnCalc" class="primary">Calcola</button>
+  </div>
+</header>
+
+<main class="container">
+  <section class="card">
+    <h2>Parametri</h2>
+    <div class="grid">
+      <label>Classe SKF
+        <select id="skfClass">
+          <option>CN</option><option>C2L</option><option>C2H</option>
+          <option>CNL</option><option>CNH</option>
+          <option>C3L</option><option>C3H</option>
+          <option>C4L</option><option>C4H</option>
+          <option>C5L</option><option>C5H</option>
+        </select>
+      </label>
+      <label>Diametro foro d (mm)
+        <input type="number" id="bore" value="40" step="1">
+      </label>
+      <label>GR minimo (µm)
+        <input type="number" id="grMin" step="0.1">
+      </label>
+      <label>GR massimo (µm)
+        <input type="number" id="grMax" step="0.1">
+      </label>
+      <label>IR min <input type="number" id="irMin" value="-10" step="1"></label>
+      <label>IR max <input type="number" id="irMax" value="10" step="1"></label>
+      <label>OR min <input type="number" id="orMin" value="0" step="1"></label>
+      <label>OR max <input type="number" id="orMax" value="30" step="1"></label>
+      <label class="range">Offset (−5…+10 µm)
+        <input type="range" id="offset" min="-5" max="10" step="0.1" value="0">
+      </label>
+      <output id="offOut" class="badge">0.0 µm</output>
+      <label class="full chips">Sfumature sfere
+        <span data-sfera="-4" class="chip chip-on">−4</span>
+        <span data-sfera="-2" class="chip chip-on">−2</span>
+        <span data-sfera="0"  class="chip chip-on">0</span>
+        <span data-sfera="2"  class="chip chip-on">+2</span>
+        <span data-sfera="4"  class="chip chip-on">+4</span>
+      </label>
     </div>
-  </header>
+    <div class="row">
+      <label class="inline"><input type="checkbox" id="onlyValid"> mostra solo valide</label>
+    </div>
+    <p class="muted" id="skfHint">Seleziona Classe e d → i limiti GR vengono presi dalle tabelle SKF D11‑1. Puoi modificarli se necessario.</p>
+  </section>
 
-  <main class="container">
-    <section class="card">
-      <h2>Parametri</h2>
-      <div class="grid">
-        <label>IR min <input type="number" id="irMin" value="-10" step="1"></label>
-        <label>IR max <input type="number" id="irMax" value="10" step="1"></label>
-        <label>OR min <input type="number" id="orMin" value="0" step="1"></label>
-        <label>OR max <input type="number" id="orMax" value="30" step="1"></label>
-        <label>GR minimo (µm) <input type="number" id="grMin" value="35" step="0.1"></label>
-        <label>GR massimo (µm) <input type="number" id="grMax" value="40" step="0.1"></label>
-        <label class="range">Offset (−5…+10 µm)
-          <input type="range" id="offset" min="-5" max="10" step="0.1" value="0">
-        </label>
-        <output id="offOut" class="badge">0.0 µm</output>
-        <label class="full chips">Sfumature sfere
-          <span data-sfera="-4" class="chip chip-on">−4</span>
-          <span data-sfera="-2" class="chip chip-on">−2</span>
-          <span data-sfera="0"  class="chip chip-on">0</span>
-          <span data-sfera="2"  class="chip chip-on">+2</span>
-          <span data-sfera="4"  class="chip chip-on">+4</span>
-        </label>
-      </div>
-      <div class="row">
-        <label class="inline">
-          <input type="checkbox" id="preferZero" checked>
-          preferisci IR vicino a 0
-        </label>
-        <label class="inline">
-          <input type="checkbox" id="onlyValid">
-          mostra solo valide
-        </label>
-      </div>
-    </section>
+  <section class="kpi">
+    <div class="tile ok"><div class="k">Valide</div><div class="v"><span id="kValid">0</span>/<span id="kTotal">0</span></div><small>nel range GR</small></div>
+    <div class="tile"><div class="k">GR target</div><div class="v"><span id="kGrMin">–</span>–<span id="kGrMax">–</span> µm</div><small>da tabella</small></div>
+    <div class="tile"><div class="k">Offset</div><div class="v"><span id="kOffset">0.0</span> µm</div><small>applicato</small></div>
+    <div class="tile best"><div class="k">Ricetta consigliata</div><div class="v" id="kBest">—</div><small id="kWhy">IR≈0 • GR centrale • OR minimo</small></div>
+  </section>
 
-    <section class="kpi">
-      <div class="tile ok">
-        <div class="k">Valide</div>
-        <div class="v"><span id="kValid">0</span>/<span id="kTotal">0</span></div>
-        <small>Combinazioni nel range GR</small>
-      </div>
-      <div class="tile">
-        <div class="k">GR target</div>
-        <div class="v"><span id="kGrMin">35</span>–<span id="kGrMax">40</span> µm</div>
-        <small>Intervallo impostato</small>
-      </div>
-      <div class="tile">
-        <div class="k">Offset</div>
-        <div class="v"><span id="kOffset">0.0</span> µm</div>
-        <small>Applicato a tutte le combinazioni</small>
-      </div>
-      <div class="tile best">
-        <div class="k">Ricetta consigliata</div>
-        <div class="v" id="kBest">—</div>
-        <small id="kWhy">IR≈0 • GR centrale • OR minimo</small>
-      </div>
-    </section>
+  <section class="card">
+    <h2>Combinazioni</h2>
+    <div class="table-wrap">
+      <table id="tbl"><thead><tr><th>IR</th><th>OR</th><th>Sfera</th><th>Offset</th><th>GR (µm)</th><th>Valido?</th></tr></thead><tbody></tbody></table>
+    </div>
+  </section>
 
-    <section class="card">
-      <h2>Copertura GR</h2>
-      <div class="bar"><div id="barFill"></div></div>
-      <div class="legend"><span>0%</span><span id="barPct">0%</span><span>100%</span></div>
-    </section>
+  <footer class="foot">© SKF demo • Tabelle D11‑1 caricabili</footer>
+</main>
 
-    <section class="card">
-      <div class="table-head">
-        <h2>Combinazioni</h2>
-        <div class="filters">
-          <label>Ordina per
-            <select id="sortBy">
-              <option value="gr">GR (vicino al centro)</option>
-              <option value="ir">IR (vicino a 0)</option>
-              <option value="or">OR crescente</option>
-              <option value="sfera">Sfera</option>
-            </select>
-          </label>
-          <label>Ricerca <input id="q" placeholder="filtra…"></label>
-        </div>
-      </div>
-      <div class="table-wrap">
-        <table id="tbl">
-          <thead>
-            <tr><th>IR</th><th>OR</th><th>Sfera</th><th>Offset</th><th>GR (µm)</th><th>Valido?</th></tr>
-          </thead>
-          <tbody></tbody>
-        </table>
-      </div>
-      <p class="muted">Clicca una riga per impostare la ricetta consigliata.</p>
-    </section>
+<!-- Modal tabelle -->
+<div id="modal" class="modal hidden">
+  <div class="modal-card">
+    <div class="modal-head">
+      <h3>Tabelle SKF (D11‑1) – editor</h3>
+      <button id="mClose" class="ghost">Chiudi</button>
+    </div>
+    <p class="muted">Importa o modifica i range ufficiali per classe e intervallo di diametro foro d.</p>
+    <textarea id="csv" rows="10" spellcheck="false"></textarea>
+    <div class="row">
+      <button id="mLoad" class="ghost">Carica esempio</button>
+      <button id="mSave" class="primary">Salva in memoria</button>
+      <button id="mExport" class="ghost">Esporta CSV</button>
+    </div>
+    <details class="muted"><summary>Formato CSV</summary>
+      <pre>class,d_min,d_max,gr_min,gr_max
+CN,30,50,6,20
+C3,30,50,13,28
+...</pre>
+    </details>
+  </div>
+</div>
 
-    <footer class="foot">© SKF • PWA pulita</footer>
-  </main>
-
-  <script src="app.js"></script>
-  <script>
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => { navigator.serviceWorker.register('sw.js'); });
-    }
-  </script>
+<script src="app.js"></script>
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => { navigator.serviceWorker.register('sw.js'); });
+  }
+</script>
 </body>
 </html>
