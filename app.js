@@ -1,18 +1,75 @@
 const $=id=>document.getElementById(id);
-const KEY='skfTablesCSV';
-const SAMPLE=`class,d_min,d_max,gr_min,gr_max
-CN,30,50,6,20
-C3,30,50,13,28
-C4,30,50,25,43
-C5,30,50,45,61
-CN,10,18,3,10
-C3,10,18,7,15`;
+const KEY='skfTablesCSV_full_v55';
+
+// Classi & blocchi d (coperti dalle tue foto). I valori GR vengono da CSV integrato.
+const CLASSES = ["C2L","C2H","CNL","CN","CNH","C3L","C3H","C2P","CNP","C3P","C4P","C5P","C4L","C4H","C5L","C5H"];
+const BORE_BLOCKS = [[2.5,2.5],[10,14],[14,18],[18,24],[24,30],[30,40],[40,50],[50,65],[65,80],[80,100],[100,120],[120,140],[140,160]];
+
+// CSV integrato (parzialmente precompilato con valori standard ben leggibili; il resto puoi rifinirlo dall'editor)
+const BUILTIN = `class,d_min,d_max,gr_min,gr_max
+CN,30,40,6,20
+CN,40,50,7,21
+C3,30,40,13,28
+C3,40,50,14,30
+C4,30,40,25,43
+C4,40,50,26,45
+C5,30,40,45,61
+C5,40,50,46,71
+C2L,10,14,4,8
+C2L,14,18,4,8
+C2H,10,14,6,10
+C2H,14,18,8,12
+CNL,18,24,8,12
+CNH,18,24,10,14
+C3L,18,24,12,17
+C3H,18,24,17,22
+C4L,10,14,22,27
+C4H,10,14,27,30
+C5L,10,14,30,35
+C5H,10,14,35,40
+C4L,14,18,25,32
+C4H,14,18,30,37
+C5L,14,18,33,41
+C5H,14,18,39,45
+C4L,18,24,27,34
+C4H,18,24,32,41
+C5L,18,24,35,41
+C5H,18,24,41,47
+C4L,24,30,30,41
+C4H,24,30,34,47
+C5L,24,30,38,45
+C5H,24,30,45,53
+C4L,30,40,34,43
+C4H,30,40,41,51
+C5L,30,40,47,61
+C5H,30,40,51,75
+C4L,40,50,36,44
+C4H,40,50,43,52
+C5L,40,50,51,62
+C5H,40,50,61,71
+C4L,50,65,43,53
+C4H,50,65,52,62
+C5L,50,65,62,75
+C5H,50,65,71,87
+C2P,10,14,6,12
+CNP,10,14,11,17
+C3P,10,14,16,26
+C4P,10,14,25,35
+C5P,10,14,35,45
+C2P,14,18,7,13
+CNP,14,18,13,19
+C3P,14,18,18,28
+C4P,14,18,26,36
+C5P,14,18,36,51
+`; // <-- completa i blocchi restanti dall'editor se necessario
 
 let SPHERES = new Set([-4,-2,0,2,4]);
 let data=[];
 
-function loadCSV(){ return localStorage.getItem(KEY) || SAMPLE; }
-function saveCSV(csv){ localStorage.setItem(KEY,csv); }
+function ensureCsv(){
+  if(!localStorage.getItem(KEY)) localStorage.setItem(KEY, BUILTIN);
+  return localStorage.getItem(KEY);
+}
 function parseCSV(csv){
   const lines = csv.trim().split(/\r?\n/).filter(l=>l.trim());
   lines.shift();
@@ -21,16 +78,20 @@ function parseCSV(csv){
     return {cls, dmin:+dmin, dmax:+dmax, gmin:+gmin, gmax:+gmax};
   });
 }
+function currentTable(){ return parseCSV(ensureCsv()); }
 function findRange(cls,d,table){
   const clsKey=cls.trim().toUpperCase();
   let rows=table.filter(r=>r.cls.toUpperCase()===clsKey && d>r.dmin-1e-9 && d<=r.dmax+1e-9);
   if(rows.length===0){
-    const base=clsKey.replace(/[LH]$/,''); // fallback base class
+    const base=clsKey.replace(/[LH]$/,'').replace(/P$/,''); // fallback
     rows=table.filter(r=>r.cls.toUpperCase()===base && d>r.dmin-1e-9 && d<=r.dmax+1e-9);
   }
   return rows[0]||null;
 }
-
+function fillSelectors(){
+  const clsSel=$('skfClass'); clsSel.innerHTML = CLASSES.map(c=>`<option>${c}</option>`).join('');
+  const boreSel=$('bore'); boreSel.innerHTML = BORE_BLOCKS.map(b=>`<option value="${b[1]}">${b[0]}–${b[1]}</option>`).join('');
+}
 function readInputs(){
   return {
     cls: $('skfClass').value,
@@ -40,7 +101,7 @@ function readInputs(){
     grMin:+$('grMin').value, grMax:+$('grMax').value,
     off:+$('offset').value,
     onlyValid:$('onlyValid').checked,
-    table:parseCSV(loadCSV())
+    table:currentTable()
   };
 }
 function syncFromTable(){
@@ -49,34 +110,33 @@ function syncFromTable(){
   if(r){
     $('grMin').value=r.gmin; $('grMax').value=r.gmax;
     $('kGrMin').textContent=r.gmin; $('kGrMax').textContent=r.gmax;
-    $('skfHint').textContent=`Range da tabella: ${s.cls} per d=${s.bore} → ${r.gmin}…${r.gmax} µm.`;
+    $('skfHint').textContent=`Range da tabella: ${s.cls} per d in ${s.bore} → ${r.gmin}…${r.gmax} µm.`;
   }else{
-    $('skfHint').textContent=`Nessuna riga trovata per ${s.cls} a d=${s.bore}. Aggiungi nel menu “Gestisci Tabelle SKF”.`;
+    $('skfHint').textContent=`Nessuna riga per ${s.cls} a d ${s.bore}. Apri “Gestisci Tabelle SKF” e completa i valori.`;
   }
 }
 function calc(){
   const s=readInputs();
   $('offOut').textContent=s.off.toFixed(1)+' µm';
-  $('kGrMin').textContent=s.grMin.toFixed(0);
-  $('kGrMax').textContent=s.grMax.toFixed(0);
+  $('kGrMin').textContent=s.grMin||'—';
+  $('kGrMax').textContent=s.grMax||'—';
   $('kOffset').textContent=s.off.toFixed(1);
   data=[];
   for(let ir=s.irMin;ir<=s.irMax;ir++){
     for(let or=s.orMin;or<=s.orMax;or++){
       for(const sf of [-4,-2,0,2,4]){
         const gr=or-ir+sf+s.off;
-        const ok=gr>=s.grMin && gr<=s.grMax;
+        const ok=(isFinite(s.grMin)&&isFinite(s.grMax))? (gr>=s.grMin && gr<=s.grMax) : true;
         data.push({ir,or,sfera:sf,off:s.off,gr,ok});
       }
     }
   }
   const valid=data.filter(r=>r.ok);
-  document.getElementById('kValid').textContent=valid.length;
-  document.getElementById('kTotal').textContent=data.length;
-  const center=(s.grMin+s.grMax)/2;
+  $('kValid').textContent=valid.length; $('kTotal').textContent=data.length;
+  const center=(s.grMin+s.grMax)/2 || 0;
   const score=r => (r.ok?0:1)*1e6 + Math.abs(r.ir)*100 + Math.abs(r.gr-center)*10 + r.or;
   const best=data.slice().sort((a,b)=>score(a)-score(b))[0];
-  document.getElementById('kBest').textContent=best?`IR ${best.ir}, OR ${best.or}, sfera ${best.sfera}, GR ${best.gr.toFixed(2)} µm`:'—';
+  $('kBest').textContent=best?`IR ${best.ir}, OR ${best.or}, sfera ${best.sfera}, GR ${best.gr.toFixed(2)} µm`:'—';
   renderTable();
 }
 function renderTable(){
@@ -101,18 +161,19 @@ function setupChips(){
     });
   });
 }
-// modal
-const modal=document.getElementById('modal'), csvTA=document.getElementById('csv');
-document.getElementById('btnTbl').addEventListener('click',()=>{csvTA.value=loadCSV(); modal.classList.remove('hidden');});
-document.getElementById('mClose').addEventListener('click',()=>modal.classList.add('hidden'));
-document.getElementById('mLoad').addEventListener('click',()=>csvTA.value=SAMPLE);
-document.getElementById('mSave').addEventListener('click',()=>{saveCSV(csvTA.value); modal.classList.add('hidden'); syncFromTable(); calc();});
-document.getElementById('mExport').addEventListener('click',()=>{
-  const blob=new Blob([loadCSV()],{type:'text/csv'});
-  const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download='skf-tabelle.csv'; a.click(); URL.revokeObjectURL(url);
+
+// Modal tabelle
+const modal=$('modal'), csvTA=$('csv');
+$('btnTbl').addEventListener('click',()=>{csvTA.value=ensureCsv(); modal.classList.remove('hidden');});
+$('mClose').addEventListener('click',()=>modal.classList.add('hidden'));
+$('mReset').addEventListener('click',()=>{localStorage.setItem(KEY, BUILTIN); csvTA.value=BUILTIN;});
+$('mSave').addEventListener('click',()=>{localStorage.setItem(KEY, csvTA.value); modal.classList.add('hidden'); syncFromTable(); calc();});
+$('mExport').addEventListener('click',()=>{
+  const blob=new Blob([ensureCsv()],{type:'text/csv'});
+  const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download='skf-tabelle-complete.csv'; a.click(); URL.revokeObjectURL(url);
 });
 
 ['skfClass','bore'].forEach(id=>document.getElementById(id).addEventListener('input',()=>{syncFromTable();calc();}));
 ['irMin','irMax','orMin','orMax','grMin','grMax','offset','onlyValid'].forEach(id=>document.getElementById(id).addEventListener('input',calc));
-document.getElementById('btnCalc').addEventListener('click',calc);
-setupChips(); syncFromTable(); calc();
+
+fillSelectors(); setupChips(); syncFromTable(); calc();

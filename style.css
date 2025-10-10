@@ -48,7 +48,4 @@ th{position:sticky;top:0;background:#08235a}
 .modal.hidden{display:none}
 .modal-card{width:min(980px,96vw);background:#051a44;border:1px solid #2f66c9;border-radius:14px;padding:14px;box-shadow:0 20px 60px rgba(0,0,0,.5)}
 .modal-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
-@media (max-width:900px){
-  .grid{grid-template-columns:repeat(2,1fr)}
-  .kpi{grid-template-columns:repeat(2,1fr)}
-}
+@media (max-width:900px){.grid{grid-template-columns:repeat(2,1fr)} .kpi{grid-template-columns:repeat(2,1fr)}}

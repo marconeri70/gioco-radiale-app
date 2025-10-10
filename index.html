@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>SKF • Calcolo Gioco Radiale</title>
+  <title>SKF • Calcolo Gioco Radiale (tabelle integrate)</title>
   <meta name="theme-color" content="#0A57D6"/>
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="icon" sizes="192x192" href="icons/icon-192.png">
@@ -16,7 +16,7 @@
     <div class="logo">SKF</div>
     <div class="titles">
       <h1>Calcolo Gioco Radiale</h1>
-      <p class="subtitle">Classi SKF D11‑1 • PWA v5.2</p>
+      <p class="subtitle">D11‑1 • v5.5 (PWA)</p>
     </div>
   </div>
   <div class="quick">
@@ -30,16 +30,10 @@
     <h2>Parametri</h2>
     <div class="grid">
       <label>Classe SKF
-        <select id="skfClass">
-          <option>CN</option><option>C2L</option><option>C2H</option>
-          <option>CNL</option><option>CNH</option>
-          <option>C3L</option><option>C3H</option>
-          <option>C4L</option><option>C4H</option>
-          <option>C5L</option><option>C5H</option>
-        </select>
+        <select id="skfClass"></select>
       </label>
       <label>Diametro foro d (mm)
-        <input type="number" id="bore" value="40" step="1">
+        <select id="bore"></select>
       </label>
       <label>GR minimo (µm)
         <input type="number" id="grMin" step="0.1">
@@ -63,10 +57,8 @@
         <span data-sfera="4"  class="chip chip-on">+4</span>
       </label>
     </div>
-    <div class="row">
-      <label class="inline"><input type="checkbox" id="onlyValid"> mostra solo valide</label>
-    </div>
-    <p class="muted" id="skfHint">Seleziona Classe e d → i limiti GR vengono presi dalle tabelle SKF D11‑1. Puoi modificarli se necessario.</p>
+    <div class="row"><label class="inline"><input type="checkbox" id="onlyValid"> mostra solo valide</label></div>
+    <p class="muted" id="skfHint">Classe + d → GR min/max prelevati dalle tabelle integrate (editor & CSV inclusi).</p>
   </section>
 
   <section class="kpi">
@@ -78,12 +70,10 @@
 
   <section class="card">
     <h2>Combinazioni</h2>
-    <div class="table-wrap">
-      <table id="tbl"><thead><tr><th>IR</th><th>OR</th><th>Sfera</th><th>Offset</th><th>GR (µm)</th><th>Valido?</th></tr></thead><tbody></tbody></table>
-    </div>
+    <div class="table-wrap"><table id="tbl"><thead><tr><th>IR</th><th>OR</th><th>Sfera</th><th>Offset</th><th>GR (µm)</th><th>Valido?</th></tr></thead><tbody></tbody></table></div>
   </section>
 
-  <footer class="foot">© SKF demo • Tabelle D11‑1 caricabili</footer>
+  <footer class="foot">© SKF demo • Tabelle D11‑1 integrate e modificabili</footer>
 </main>
 
 <!-- Modal tabelle -->
@@ -96,8 +86,8 @@
     <p class="muted">Importa o modifica i range ufficiali per classe e intervallo di diametro foro d.</p>
     <textarea id="csv" rows="10" spellcheck="false"></textarea>
     <div class="row">
-      <button id="mLoad" class="ghost">Carica esempio</button>
-      <button id="mSave" class="primary">Salva in memoria</button>
+      <button id="mReset" class="ghost">Ripristina integrate</button>
+      <button id="mSave" class="primary">Salva</button>
       <button id="mExport" class="ghost">Esporta CSV</button>
     </div>
     <details class="muted"><summary>Formato CSV</summary>
@@ -110,10 +100,5 @@ C3,30,50,13,28
 </div>
 
 <script src="app.js"></script>
-<script>
-  if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => { navigator.serviceWorker.register('sw.js'); });
-  }
-</script>
-</body>
-</html>
+<script>if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js'));}</script>
+</body></html>
