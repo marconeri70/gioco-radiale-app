@@ -25,7 +25,7 @@ textarea{width:100%}
 .range input{appearance:none;height:8px;border-radius:6px;background:#0e2a69;outline:none}
 .range input::-webkit-slider-thumb{appearance:none;width:18px;height:18px;border-radius:50%;background:var(--accent);border:2px solid #053b86;cursor:pointer}
 .badge{align-self:end;background:#0e2a69;border:1px solid #1348a6;border-radius:10px;padding:8px 10px}
-.row{display:flex;gap:12px;align-items:center}
+.row{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
 .inline{display:flex;gap:8px;align-items:center}
 .chips{gap:8px}.chip{display:inline-flex;align-items:center;justify-content:center;
   min-width:44px;padding:6px 10px;border-radius:18px;border:1px solid var(--line);cursor:pointer}
@@ -39,6 +39,7 @@ textarea{width:100%}
 .table-wrap{max-height:420px;overflow:auto;border-radius:10px;border:1px solid rgba(255,255,255,.08)}
 table{width:100%;border-collapse:collapse;background:#061d48;color:#eaf2ff}
 th,td{padding:10px;border-bottom:1px solid rgba(255,255,255,.07);text-align:center}
+tr.sel{outline:2px solid var(--accent)}
 th{position:sticky;top:0;background:#08235a}
 .ok{color:#39d18b;font-weight:700}.ko{color:#ff7b73;font-weight:700}
 .muted{opacity:.85}

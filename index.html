@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>SKF • Calcolo Gioco Radiale (tabelle integrate)</title>
+  <title>SKF • Calcolo Gioco Radiale (v5.8)</title>
   <meta name="theme-color" content="#0A57D6"/>
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="icon" sizes="192x192" href="icons/icon-192.png">
@@ -16,11 +16,11 @@
     <div class="logo">SKF</div>
     <div class="titles">
       <h1>Calcolo Gioco Radiale</h1>
-      <p class="subtitle">D11‑1 • v5.5 (PWA)</p>
+      <p class="subtitle">D11‑1 • v5.8 (PWA)</p>
     </div>
   </div>
   <div class="quick">
-    <button id="btnTbl" class="ghost">Gestisci Tabelle SKF</button>
+    <button id="btnTbl" class="ghost">Tabelle SKF</button>
     <button id="btnCalc" class="primary">Calcola</button>
   </div>
 </header>
@@ -35,20 +35,33 @@
       <label>Diametro foro d (mm)
         <select id="bore"></select>
       </label>
+
+      <label class="inline full"><input type="checkbox" id="lockGR" checked> Blocca GR alla tabella SKF</label>
+
       <label>GR minimo (µm)
-        <input type="number" id="grMin" step="0.1">
+        <input type="number" id="grMin" step="0.1" disabled>
       </label>
       <label>GR massimo (µm)
-        <input type="number" id="grMax" step="0.1">
+        <input type="number" id="grMax" step="0.1" disabled>
       </label>
+
       <label>IR min <input type="number" id="irMin" value="-10" step="1"></label>
       <label>IR max <input type="number" id="irMax" value="10" step="1"></label>
       <label>OR min <input type="number" id="orMin" value="0" step="1"></label>
       <label>OR max <input type="number" id="orMax" value="30" step="1"></label>
+
       <label class="range">Offset (−5…+10 µm)
         <input type="range" id="offset" min="-5" max="10" step="0.1" value="0">
       </label>
       <output id="offOut" class="badge">0.0 µm</output>
+
+      <label>Finestra IR ± (step)
+        <input type="number" id="winIR" value="1" min="0" max="5" step="0.5">
+      </label>
+      <label>Finestra OR ± (step)
+        <input type="number" id="winOR" value="1" min="0" max="5" step="0.5">
+      </label>
+
       <label class="full chips">Sfumature sfere
         <span data-sfera="-4" class="chip chip-on">−4</span>
         <span data-sfera="-2" class="chip chip-on">−2</span>
@@ -57,13 +70,18 @@
         <span data-sfera="4"  class="chip chip-on">+4</span>
       </label>
     </div>
-    <div class="row"><label class="inline"><input type="checkbox" id="onlyValid"> mostra solo valide</label></div>
-    <p class="muted" id="skfHint">Classe + d → GR min/max prelevati dalle tabelle integrate (editor & CSV inclusi).</p>
+
+    <div class="row">
+      <label class="inline"><input type="checkbox" id="onlyValid"> mostra solo valide</label>
+      <button id="btnNarrow" class="ghost">Narrow IR/OR da riga selezionata</button>
+      <button id="btnResetRanges" class="ghost">Reset IR/OR ai default</button>
+    </div>
+    <p class="muted" id="skfHint">Classe + d → GR min/max da tabella pre-caricata. Disattiva “Blocca GR” per impostare manualmente.</p>
   </section>
 
   <section class="kpi">
     <div class="tile ok"><div class="k">Valide</div><div class="v"><span id="kValid">0</span>/<span id="kTotal">0</span></div><small>nel range GR</small></div>
-    <div class="tile"><div class="k">GR target</div><div class="v"><span id="kGrMin">–</span>–<span id="kGrMax">–</span> µm</div><small>da tabella</small></div>
+    <div class="tile"><div class="k">GR target</div><div class="v"><span id="kGrMin">–</span>–<span id="kGrMax">–</span> µm</div><small>tabella o manuale</small></div>
     <div class="tile"><div class="k">Offset</div><div class="v"><span id="kOffset">0.0</span> µm</div><small>applicato</small></div>
     <div class="tile best"><div class="k">Ricetta consigliata</div><div class="v" id="kBest">—</div><small id="kWhy">IR≈0 • GR centrale • OR minimo</small></div>
   </section>
@@ -71,6 +89,7 @@
   <section class="card">
     <h2>Combinazioni</h2>
     <div class="table-wrap"><table id="tbl"><thead><tr><th>IR</th><th>OR</th><th>Sfera</th><th>Offset</th><th>GR (µm)</th><th>Valido?</th></tr></thead><tbody></tbody></table></div>
+    <p class="muted">Clicca una riga per selezionarla → usa “Narrow IR/OR da riga selezionata” per impostare automaticamente <em>IR min/max</em> e <em>OR min/max</em> attorno ai valori cliccati (± finestre).</p>
   </section>
 
   <footer class="foot">© SKF demo • Tabelle D11‑1 integrate e modificabili</footer>
@@ -83,17 +102,17 @@
       <h3>Tabelle SKF (D11‑1) – editor</h3>
       <button id="mClose" class="ghost">Chiudi</button>
     </div>
-    <p class="muted">Importa o modifica i range ufficiali per classe e intervallo di diametro foro d.</p>
-    <textarea id="csv" rows="10" spellcheck="false"></textarea>
+    <p class="muted">Le celle già lette dalle foto sono precompilate. Completa i campi mancanti e salva (memoria locale).</p>
+    <textarea id="csv" rows="14" spellcheck="false"></textarea>
     <div class="row">
-      <button id="mReset" class="ghost">Ripristina integrate</button>
+      <button id="mReset" class="ghost">Ripristina pre-caricate</button>
       <button id="mSave" class="primary">Salva</button>
       <button id="mExport" class="ghost">Esporta CSV</button>
     </div>
     <details class="muted"><summary>Formato CSV</summary>
       <pre>class,d_min,d_max,gr_min,gr_max
-CN,30,50,6,20
-C3,30,50,13,28
+CN,30,40,6,20
+C3,30,40,13,28
 ...</pre>
     </details>
   </div>
