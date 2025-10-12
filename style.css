@@ -44,7 +44,6 @@ th{position:sticky;top:0;background:#08235a}
 .ok{color:#39d18b;font-weight:700}.ko{color:#ff7b73;font-weight:700}
 .muted{opacity:.85}
 .foot{text-align:center;opacity:.75;margin:12px 0}
-/* Modal */
 .modal{position:fixed;inset:0;background:rgba(0,0,0,.45);display:grid;place-items:center}
 .modal.hidden{display:none}
 .modal-card{width:min(980px,96vw);background:#051a44;border:1px solid #2f66c9;border-radius:14px;padding:14px;box-shadow:0 20px 60px rgba(0,0,0,.5)}
