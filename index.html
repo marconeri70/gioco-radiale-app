@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>SKF • Calcolo Gioco Radiale (v5.8)</title>
+  <title>SKF • Calcolo Gioco Radiale (v5.9)</title>
   <meta name="theme-color" content="#0A57D6"/>
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="icon" sizes="192x192" href="icons/icon-192.png">
@@ -16,7 +16,7 @@
     <div class="logo">SKF</div>
     <div class="titles">
       <h1>Calcolo Gioco Radiale</h1>
-      <p class="subtitle">D11‑1 • v5.8 (PWA)</p>
+      <p class="subtitle">D11-1 • v5.9 (PWA)</p>
     </div>
   </div>
   <div class="quick">
@@ -76,7 +76,7 @@
       <button id="btnNarrow" class="ghost">Narrow IR/OR da riga selezionata</button>
       <button id="btnResetRanges" class="ghost">Reset IR/OR ai default</button>
     </div>
-    <p class="muted" id="skfHint">Classe + d → GR min/max da tabella pre-caricata. Disattiva “Blocca GR” per impostare manualmente.</p>
+    <p class="muted" id="skfHint">Classe + d → GR min/max da tabella. Importa i tuoi dati da CSV/Excel nel pannello “Tabelle SKF”.</p>
   </section>
 
   <section class="kpi">
@@ -92,32 +92,43 @@
     <p class="muted">Clicca una riga per selezionarla → usa “Narrow IR/OR da riga selezionata” per impostare automaticamente <em>IR min/max</em> e <em>OR min/max</em> attorno ai valori cliccati (± finestre).</p>
   </section>
 
-  <footer class="foot">© SKF demo • Tabelle D11‑1 integrate e modificabili</footer>
+  <footer class="foot">© SKF demo • Tabelle D11-1 integrate e modificabili</footer>
 </main>
 
 <!-- Modal tabelle -->
 <div id="modal" class="modal hidden">
   <div class="modal-card">
     <div class="modal-head">
-      <h3>Tabelle SKF (D11‑1) – editor</h3>
+      <h3>Tabelle SKF (D11-1) – importa / modifica</h3>
       <button id="mClose" class="ghost">Chiudi</button>
     </div>
-    <p class="muted">Le celle già lette dalle foto sono precompilate. Completa i campi mancanti e salva (memoria locale).</p>
-    <textarea id="csv" rows="14" spellcheck="false"></textarea>
+    <p class="muted">Formato richiesto: colonne <code>class,d_min,d_max,gr_min,gr_max</code>. Puoi importare <strong>CSV</strong> o <strong>Excel (.xlsx)</strong>.</p>
+
     <div class="row">
-      <button id="mReset" class="ghost">Ripristina pre-caricate</button>
+      <input type="file" id="fileIn" accept=".csv,.xlsx" />
+      <button id="mImport" class="primary">Importa CSV/Excel</button>
+      <button id="mReset" class="ghost">Ripristina struttura completa</button>
+    </div>
+
+    <textarea id="csv" rows="14" spellcheck="false"></textarea>
+
+    <div class="row">
       <button id="mSave" class="primary">Salva</button>
       <button id="mExport" class="ghost">Esporta CSV</button>
     </div>
-    <details class="muted"><summary>Formato CSV</summary>
+
+    <details class="muted"><summary>Esempio CSV</summary>
       <pre>class,d_min,d_max,gr_min,gr_max
 CN,30,40,6,20
 C3,30,40,13,28
 ...</pre>
     </details>
+    <p class="muted" id="importNote">Nota: l'import Excel usa una libreria esterna (SheetJS). Se sei offline, importa un CSV.</p>
   </div>
 </div>
 
+<!-- SheetJS per import Excel (.xlsx) -->
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js" defer></script>
 <script src="app.js"></script>
 <script>if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js'));}</script>
 </body></html>
